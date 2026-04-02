@@ -8,10 +8,10 @@ from flwr.common.typing import NDArrays, Scalar
 from hydra.utils import instantiate
 from torch.utils.data import DataLoader
 
-from models import test_more
+from kd_project.models.models import test_more
 from omegaconf import DictConfig
 from pathlib import Path
-from utils import caculate_acc
+from kd_project.common.utils import caculate_acc
 
 def gen_evaluate_fn(
     testloader: DataLoader,

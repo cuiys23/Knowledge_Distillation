@@ -7,9 +7,8 @@ from flwr.common.typing import NDArrays, Scalar
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
-from models import test, train, test
-from models import load_pretrained_weights
-from utils import calc_weight_acc
+from kd_project.models.models import test, train, load_pretrained_weights
+from kd_project.common.utils import calc_weight_acc
 import flwr as fl
 import numpy as np
 import torch

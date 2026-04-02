@@ -1,5 +1,5 @@
 """联邦学习的 MNIST 数据集工具函数。"""
-from dataset_preparation import partition_data, download_data, subset_data
+from kd_project.data.dataset_preparation import partition_data, download_data, subset_data
 from torch.utils.data import DataLoader, random_split, ConcatDataset
 from typing import Optional, Any
 from omegaconf import DictConfig

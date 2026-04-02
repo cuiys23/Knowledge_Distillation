@@ -25,7 +25,7 @@ dataset_config:
   ignore_class:
   - 8
 model:
-  _target_: simple_vit.SimpleViT
+  _target_: kd_project.models.simple_vit.SimpleViT
   num_classes: 9
   dim: 16
   depth: 4
@@ -33,14 +33,14 @@ model:
   mlp_dim: 12
   channels: 1
 strategy:
-  _target_: strategy.FedAvgWithKnowledge
+  _target_: kd_project.fl.strategy.FedAvgWithKnowledge
   fraction_fit: 1.0e-05
   fraction_evaluate: 0.0
   min_fit_clients: ${clients_per_round}
   min_evaluate_clients: 0
   min_available_clients: ${clients_per_round}
   evaluate_metrics_aggregation_fn:
-    _target_: strategy.weighted_average
+    _target_: kd_project.fl.strategy.weighted_average
     _partial_: true
   proximal_mu: ${mu}
 distillation: distillation

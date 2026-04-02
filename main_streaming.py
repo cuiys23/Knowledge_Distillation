@@ -1,12 +1,20 @@
 """运行电池数据集的联邦学习。"""
-from knowledge_distillation import run_knowledge_distillation
+import copy
+import os
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent
+SRC_DIR = ROOT_DIR / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
+
+from kd_project.core.knowledge_distillation import run_knowledge_distillation
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig
 import hydra
-import copy
-import os
 
-from federated_runner import run_federated, setup_cuda_env
+from kd_project.core.federated_runner import run_federated, setup_cuda_env
 
 setup_cuda_env()
 

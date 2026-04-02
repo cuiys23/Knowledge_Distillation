@@ -15,11 +15,10 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from sklearn.metrics import confusion_matrix
 
-import client
-import server
-import utils
-from dataset import load_datasets
-from models import test_more
+from kd_project.fl import client, server
+from kd_project.common import utils
+from kd_project.data.dataset import load_datasets
+from kd_project.models.models import test_more
 
 
 def setup_cuda_env() -> None:
