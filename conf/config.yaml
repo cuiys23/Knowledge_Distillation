@@ -1,0 +1,61 @@
+num_clients: 5
+num_epochs: 5
+batch_size: 16
+num_rounds: 100
+clients_per_round: 3
+learning_rate: 0.001
+mu: 1.0
+fit_config: {}
+client_resources:
+  num_cpus: 0.5
+  num_gpus: 0.5
+server_device: cpu
+dataset_config:
+  iid: false
+  alpha: 0.1
+  subset_list:
+  - 0
+  - 1
+  - 2
+  - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  ignore_class:
+  - 8
+model:
+  _target_: simple_vit.SimpleViT
+  num_classes: 9
+  dim: 16
+  depth: 4
+  heads: 4
+  mlp_dim: 12
+  channels: 1
+strategy:
+  _target_: strategy.FedAvgWithKnowledge
+  fraction_fit: 1.0e-05
+  fraction_evaluate: 0.0
+  min_fit_clients: ${clients_per_round}
+  min_evaluate_clients: 0
+  min_available_clients: ${clients_per_round}
+  evaluate_metrics_aggregation_fn:
+    _target_: strategy.weighted_average
+    _partial_: true
+  proximal_mu: ${mu}
+distillation: distillation
+weight: false
+dynamic_weight: false
+add_client: false
+load_params:
+  init: true
+  full: false
+  distillation_revise: false
+  freeze: false
+train:
+  unique: false
+  test_all: true
+  unique_one: 0
+save_path_source:
+save_path_distillation:
+save_path_final:
