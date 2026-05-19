@@ -1,0 +1,113 @@
+\documentclass[journal]{IEEEtran}
+
+% Math packages
+\usepackage{amsmath,amsfonts,amssymb,amsthm,bm,mathrsfs}
+
+% Algorithm packages
+\usepackage{algorithmic,algorithm}
+
+% Array and table packages
+\usepackage{array,multirow,booktabs,makecell}
+
+% Graphics packages
+\usepackage{graphicx,epsfig}
+
+% Float and sizing packages
+\usepackage{stfloats,float,calc}
+
+% Text and formatting packages
+\usepackage{textcomp,verbatim,url,cite,color,xcolor,cancel}
+% Changes package for revision highlights
+\let\comment\undefined
+\usepackage[draft]{changes}
+\definechangesauthor[name={cuiys}, color=red]{cuiys}
+% 使用示例：\added[id=cuiys]{新增内容}，\deleted[id=cuiys]{删除内容}，\replaced[id=cuiys]{新}{旧}
+
+% Layout packages
+\usepackage{cuted}
+
+\hyphenation{op-tical net-works semi-conduc-tor IEEE-Xplore}
+
+% Environment customization
+\makeatletter
+\providecommand{\tabularnewline}{\\}
+\floatstyle{ruled}
+\newfloat{algorithm}{tbp}{loa}
+\providecommand{\algorithmname}{Algorithm}
+\floatname{algorithm}{\protect\algorithmname}
+\makeatother
+
+% Theorem environments
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}
+\newtheorem{assumption}{Assumption}
+\newtheorem{lemma}{Lemma}
+\newtheorem{lem}{\protect\lemmaname}
+\newtheorem{thm}{\protect\theoremname}
+\newtheorem{pro}{\protect\proposition}
+\newtheorem{corollary}{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{defn}{\protect\definitionname}
+\newtheorem{myDef}{Definition}
+
+% Custom command definitions
+\providecommand{\definitionname}{Definition}
+\providecommand{\lemmaname}{Lemma}
+\providecommand{\theoremname}{Theorem}
+\providecommand{\proposition}{Proposition}
+\renewcommand{\algorithmicrequire}{\textbf{Input:}}
+\renewcommand{\algorithmicensure}{\textbf{Output:}}
+
+% Display settings
+\allowdisplaybreaks[4]
+
+\begin{document}
+
+\title{Satellite TT\&C System Federated Fault Diagnosis:\\Architecture Design and Convergence Analysis}
+
+\author{\IEEEauthorblockN{Yongsheng Cui\IEEEauthorrefmark{1}, Taiyi Chen\IEEEauthorrefmark{1}, Haoran Xie\IEEEauthorrefmark{2}, and Yafeng Zhan\IEEEauthorrefmark{1,3}} \\
+\IEEEauthorblockA{\IEEEauthorrefmark{1}Department of Electronic Engineering, Tsinghua University, Beijing, China\\
+\IEEEauthorrefmark{2}Electric Power Research Institute, China Southern Power Grid, Guangzhou, China\\
+\IEEEauthorrefmark{3}Beijing National Research Center for Information Science and Technology, Tsinghua University, Beijing, China}
+\thanks{This work was supported by the National Natural Science Foundation of China under Grant 62131012.}
+\thanks{Y. Zhan is the corresponding author (e-mail: zhanyf@mail.tsinghua.edu.cn).}}
+
+\maketitle
+
+\begin{abstract}
+Satellites operate in harsh space environments for extended periods, 
+making fault diagnosis a critical strategy for extending their lifespan. 
+Federated learning based fault diagnosis using telemetry data addresses critical challenges in satellite system reliability, 
+providing solutions for data privacy across different telemetry, tracking and command (TT\&C) centers 
+and improving fault diagnosis performance when individual TT\&C centers have limited training data. 
+However, challenges arise in the deployment and application of federated learning methods
+due to \textit{``Communication-limited''} and \textit{``Data Heterogeneity''} at some TT\&C centers, 
+causing performance degradation and slow convergence.
+To solve these problems, this paper proposes a streaming federated learning framework for satellite fault diagnosis. 
+The framework incorporates an Incremental Learning Algorithm based on Dual-Domain Knowledge Distillation for efficient model updates, 
+and a Federated Learning Algorithm based on Partial Forgetting Compensation for handling data heterogeneity. 
+Under this framework, TT\&C centers with communication constraints only need to participate in a single round of federated learning 
+for the system to obtain a well-performing and stable model. 
+Theoretical convergence analysis is provided to characterize the algorithm performance. 
+Extensive simulations show that the proposed algorithm outperforms existing fault diagnosis approaches for satellite systems.
+
+
+\end{abstract}
+
+\begin{IEEEkeywords}
+  Communication constraints, convergence analysis, data heterogeneity, federated learning, knowledge distillation, satellite fault diagnosis.
+\end{IEEEkeywords}
+
+\input{chapter/Introduction.tex}
+\input{chapter/Related Work.tex}
+\input{chapter/Proposed Streaming Federated Learning Framework.tex}
+% \input{chapter/Convergence Analysis.tex}
+\input{chapter/Convergence_Analysis_Draft.tex}
+\input{chapter/Simulation Results.tex}
+\input{chapter/Conclusion.tex}
+% \input{chapter/Appendix.tex}
+\input{chapter/Appendix_Draft.tex}
+\end{document}
+
+

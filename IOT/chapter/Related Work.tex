@@ -1,0 +1,53 @@
+\section{RELATED WORK}\label{sec:Related_Work}
+
+\subsection{Federated Learning: Heterogeneity and Communication Constraints}
+
+The approach of federated learning~\cite{mcmahan2017communication} represents a compelling solution for distributed machine learning that maintains data privacy. 
+This approach, anchored by the fundamental FedAvg algorithm, facilitates collaborative model training without requiring consolidation of raw data, 
+making it particularly suitable for sensitive applications like satellite telemetry. 
+However, the effectiveness of federated learning in real-world scenarios is significantly challenged by two interrelated problems: data heterogeneity and communication constraints.
+
+Data heterogeneity across clients has been extensively studied, with numerous approaches proposed to improve robustness. 
+To tackle non-independent and identically distributed (non-IID) data distributions, FedProx~\cite{li2020federated} incorporates a proximal term. 
+FedDyn~\cite{jin2023feddyn} employs dynamic regularization to handle heterogeneous objectives. 
+FedAdam and other adaptive optimization methods~\cite{reddi2020adaptive} provide server-side momentum for improved convergence.
+
+Communication efficiency is another critical bottleneck in federated learning deployments. 
+Gradient compression techniques~\cite{lin2017deep}, quantization methods, and structured updates have been proposed to reduce communication overhead. 
+However, most existing works assume clients can participate in multiple federated rounds. 
+In contrast, satellite TT\&C systems face extreme communication constraints where some centers may only participate in a single round.
+
+\subsection{Continual Learning and Knowledge Preservation in Federated Settings}
+
+To address catastrophic forgetting, various continual learning methods have been developed. 
+The class-incremental problem in federated learning—where new fault classes emerge over time—remains an open challenge in the learning community~\cite{de2021continual}. 
+Several continual learning approaches have been proposed to mitigate catastrophic forgetting. 
+Yoon et al.~\cite{yoon2021federated} divide model parameters into baseline and task-adaptive components to balance knowledge acquisition and retention. 
+Similarly, Dong et al.~\cite{de2021continual} decompose gradients into new and old components for selective updates.
+
+A number of regularization-based methods have been developed to maintain model performance on previous tasks. 
+Knowledge distillation represents a valuable approach for maintaining model knowledge throughout the learning process. 
+Despite its effectiveness in centralized settings, knowledge distillation has received limited attention in federated continual learning contexts.
+Through the guidance of a teacher model during student model training with new data, knowledge distillation helps reduce performance deterioration on previously learned fault classes. 
+In the federated learning context, knowledge distillation has been applied to preserve model knowledge and improve collaborative training efficiency.
+
+In federated settings, teacher-student frameworks enable knowledge transfer while maintaining privacy. 
+By using a teacher model to guide student model training on new data, knowledge distillation can mitigate performance degradation on previously learned fault classes. 
+This approach aligns well with the privacy constraints of satellite systems, as it does not require sharing raw gradients or private data.
+
+However, existing continual learning and knowledge distillation methods typically require sharing either raw gradients, specific parameter updates, or extensive model interactions. 
+Recent studies on Deep Leakage from Gradients (DLG) demonstrate that original training data can be reconstructed solely from shared gradients~\cite{zhu2019deep, Geiping2020}. 
+Thus, in TT\&C applications where data sovereignty is strictly enforced, such information sharing is prohibited. 
+Most existing works that address both heterogeneity and privacy concerns~\cite{huang2022learn, jiang2021fedspeech} typically assume irrelevant knowledge across clients, 
+whereas TT\&C centers require comprehensive fault knowledge sharing to maximize collective diagnostic capability.
+
+\subsection{Fault Diagnosis in Satellite Telemetry Systems}
+
+In aerospace engineering, significant research efforts have focused on data-driven approaches for fault diagnosis~\cite{ganesan2021fault, xiao2020deep}. 
+Traditional approaches include statistical methods and domain-specific feature engineering. 
+Contemporary developments leverage deep learning approaches including convolutional neural networks and time series transformers to achieve automated identification of fault patterns. 
+The Dual-aspect Time Series Transformer (DTST) method~\cite{xu2024dtst} represents SOTA performance in space system fault diagnosis. 
+However, these centralized approaches typically require aggregating sensitive telemetry data at a single location, which contradicts the data privacy requirements in satellite operations.
+In distributed multi-satellite scenarios, studies have also explored simultaneous fault estimation and cluster consensus control~\cite{10171456}.
+A preliminary version of this work was presented in~\cite{xie2025fault}, where we proposed a streaming federated learning framework addressing communication constraints and data heterogeneity in satellite fault diagnosis. 
+Those initial results demonstrated the feasibility of using dual-domain knowledge distillation and partial forgetting compensation mechanisms. 

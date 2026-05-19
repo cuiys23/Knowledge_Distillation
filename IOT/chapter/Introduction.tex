@@ -1,0 +1,89 @@
+\section{INTRODUCTION}\label{sec:Introduction}
+% Importance of satellite system monitoring
+\IEEEPARstart{S}{atellite} fault diagnosis is critical for mission success in space operations, 
+where maintenance opportunities are virtually nonexistent once deployed. 
+The Telemetry, Tracking, and Command (TT\&C) system provides telemetry streams (electrical, thermal and status data) that 
+enable continuous spacecraft health monitoring~\cite{ganesan2021fault}. 
+Data-driven approaches can extract fault features from these telemetry streams~\cite{xiao2020deep}, 
+yet their efficacy remains constrained in TT\&C centers by several factors: 
+fault occurrences are infrequent, resulting in highly imbalanced datasets with scarce representative samples, 
+and models trained on historical telemetry data often exhibit poor generalization capabilities when confronted with novel fault patterns emerging from diverse platforms 
+or varying operational conditions~\cite{xie2021leo,bieber2023generic}.
+
+% Feasibility of aggregating data across multiple TT&C centers
+Aggregating fault data across multiple TT\&C centers would ideally address data scarcity and expand fault pattern coverage~\cite{von2018data}. 
+By pooling telemetry data, each center could access more fault samples, diverse fault manifestations across platforms, 
+and novel fault types absent in its local dataset—all essential for improving generalization to unseen faults in future operations. 
+However, such direct data aggregation faces significant barriers in practice due to stringent data privacy requirements in aerospace applications. 
+Satellite telemetry often contains sensitive information related to national security and privacy interests, 
+rendering cross-center data sharing impractical.
+
+% Introduction to federated learning
+Federated learning~\cite{mcmahan2017communication} provides a promising privacy preserving alternative that reconciles these competing demands. 
+By enabling collaborative model training without raw data exchange, 
+federated learning preserves data sovereignty while allowing TT\&C centers to collectively benefit from shared fault pattern knowledge. 
+In this paper, we investigate federated learning for satellite fault diagnosis, 
+addressing two unique challenges specific to this domain:
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=\columnwidth]{fig/System Model/system model.pdf}
+	\caption{System model.}
+	\label{fig:system model}
+\end{figure}
+
+% Problems addressed in this paper
+\textit{Communication-limited}: A subset of TT\&C centers can participate in only a very small number of federated update rounds 
+— in extreme cases only a single round — due to limited link availability, or operational constraints. 
+
+\textit{Data Heterogeneity}: Telemetry data exhibits pronounced heterogeneity in two dimensions: 
+(1) \textbf{feature-level}—identical faults manifest differently across centers due to platform and sensor diversity; 
+(2) \textbf{label-level}—centers maintain disparate fault inventories with imbalanced distributions.
+
+These challenges are illustrated in Fig.~\ref{fig:system model}, where a communication-constrained TT\&C center joins at round 100 with new fault categories. 
+Traditional federated learning then encounters: 
+(1) \textbf{Model instability}—the model has difficulty retaining knowledge of old classes when learning new ones; 
+(2) \textbf{Recency bias}—after the constrained center departs, the model gradually forgets its unique fault classes, as shown in Fig.~\ref{fig:problem-formulation}.
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=\columnwidth]{fig/Introduction/problem-formulation-acc.pdf}
+  \caption{Problem formulation. $\alpha$ represents the degree of data heterogeneity.}
+	\label{fig:problem-formulation}
+\end{figure}
+
+% Objective of this paper
+The objective of this paper is to develop a model capable of accurately diagnosing faults across all TT\&C centers 
+while minimizing the communication rounds needed for communication-constrained TT\&C centers. 
+Related research on continual learning, federated learning with privacy concerns, and heterogeneous data handling is discussed in Section~\ref{sec:Related_Work}.
+
+% Main contributions of this paper
+In this study, we present a streaming federated learning framework for satellite fault diagnosis 
+that ensures efficient communication and maintains data privacy. 
+Under this framework, the TT\&C center with communication constraints only needs to 
+participate in a \textbf{single round} of federated learning for the system to obtain a well-performing and stable model. 
+% Summary of contributions
+The key contributions of this work are outlined below:
+\begin{itemize}
+  \item 
+  We provide a rigorous convergence analysis for the proposed algorithms in the communication-constrained satellite TT\&C setting. 
+  Specifically, for the proposed algorithms under non-convex objectives, 
+  we establish sublinear convergence to a neighborhood of a stationary point, 
+  with a bias-controlled asymptotic error floor.
+  \item 
+  We design a streaming federated learning framework with two core algorithms: 
+  (1) an Incremental Learning Algorithm based on Dual-Domain Knowledge Distillation for effective knowledge acquisition; 
+  (2) a Federated Learning Algorithm based on Partial Forgetting Compensation to mitigate knowledge loss.
+  \item 
+  We perform extensive experiments, including comparisons with existing methods in the literature such as DTST and in-depth ablation studies. 
+  Results show the framework's superior robustness under communication constraints and data heterogeneity.
+\end{itemize}
+
+% Paper organization
+The remainder of this paper is structured as follows: 
+Section \ref{sec:Related_Work} reviews related work on continual learning and federated learning. 
+In Section \ref{sec:Proposed Streaming Federated Learning Framework}, the proposed framework is detailed, 
+including the implementation procedures and the two core algorithms involved in this framework. 
+Section \ref{sec:convergence-analysis} provides theoretical convergence analysis of the proposed algorithm.
+Section \ref{sec:simulation-results} gives a series of case studies to demonstrate the effectiveness of the developed schemes. 
+Section \ref{sec:conclusion} concludes the paper.

@@ -34,4 +34,6 @@ outputs/
 result/
 dataset/
 
-IOT/
+IOT/**
+!IOT/**/
+!IOT/**/*.tex
