@@ -1,11 +1,11 @@
 from sklearn.metrics import confusion_matrix
-from kd_project.models.models import load_pretrained_weights
-from kd_project.models.simple_vit import ModifiedSimpleViT
+from src.models.models import load_pretrained_weights
+from src.models.simple_vit import ModifiedSimpleViT
 from hydra.utils import instantiate
-from kd_project.data.dataset import load_datasets
+from src.data.dataset import load_datasets
 from omegaconf import DictConfig
 import matplotlib.pyplot as plt
-from kd_project.common.utils import caculate_acc
+from src.common.utils import caculate_acc
 import torch.optim as optim
 from pathlib import Path
 import seaborn as sns
@@ -40,19 +40,29 @@ def _save_result_and_model(save_dir: Path, data: dict, model: torch.nn.Module) -
 
 
 def _plot_accuracy_and_confusion_matrix(
+    save_dir: Path,
     accuracy_list: list,
     cm,
     lab: list,
     pred: list,
     ignore_class,
 ) -> None:
-    plt.plot(range(len(accuracy_list)), accuracy_list, linestyle="-")
-    plt.show()
-    sns.heatmap(cm, annot=True, cmap="Blues", fmt="d")
-    acc, acc_ignore = caculate_acc(lab, pred, ignore_class)
-    plt.text(1, 1, f"acc: {acc}")
-    plt.text(5, 5, f"acc_ignore: {acc_ignore}")
-    plt.show()
+    _ensure_dir(save_dir)
+    fig_acc, ax_acc = plt.subplots()
+    ax_acc.plot(range(len(accuracy_list)), accuracy_list, linestyle="-")
+    ax_acc.set_title("Accuracy Curve")
+    ax_acc.set_xlabel("Epoch")
+    ax_acc.set_ylabel("Accuracy")
+    fig_acc.tight_layout()
+    fig_acc.savefig(save_dir / Path("accuracy_curve.png"))
+    plt.close(fig_acc)
+
+    fig_cm, ax_cm = plt.subplots()
+    sns.heatmap(cm, annot=True, cmap="Blues", fmt="d", ax=ax_cm)
+    ax_cm.set_title("Confusion Matrix")
+    fig_cm.tight_layout()
+    fig_cm.savefig(save_dir / Path("confusion_matrix.png"))
+    plt.close(fig_cm)
 
 
 def _forward_logits(model: torch.nn.Module, inputs: torch.Tensor) -> torch.Tensor:
@@ -129,7 +139,7 @@ def run_knowledge_distillation(cfg: DictConfig, distillation_save_path: str) -> 
             'accuracy_ignore': accuracy_ignore_list,
         }
         _save_result_and_model(save_path_distillation, data, net)
-        _plot_accuracy_and_confusion_matrix(accuracy_list, cm, lab, pred, ignore_class)
+        _plot_accuracy_and_confusion_matrix(save_path_distillation, accuracy_list, cm, lab, pred, ignore_class)
     # “带基线约束”的自适应权重特征蒸馏
     elif cfg.distillation == "distillation_adjust":
         net = instantiate(cfg.model).to(device)
@@ -163,7 +173,7 @@ def run_knowledge_distillation(cfg: DictConfig, distillation_save_path: str) -> 
         cm = confusion_matrix(lab, pred)
         data = {'loss': loss_list, 'accuracy': accuracy_list, 'confusion_matrix': cm, 'accuracy_unignore': accuracy_unignore_list, 'accuracy_ignore': accuracy_ignore_list}
         _save_result_and_model(save_path_distillation, data, modified_nn_student_reg)
-        _plot_accuracy_and_confusion_matrix(accuracy_list, cm, lab, pred, ignore_class)
+        _plot_accuracy_and_confusion_matrix(save_path_distillation, accuracy_list, cm, lab, pred, ignore_class)
     elif cfg.distillation == "distillation":
         # 固定权重的特征蒸馏
         modified_nn_teacher_reg = _build_modified_vit(cfg, device)
@@ -186,7 +196,7 @@ def run_knowledge_distillation(cfg: DictConfig, distillation_save_path: str) -> 
         cm = confusion_matrix(lab, pred)
         data = {'loss': loss_list, 'accuracy': accuracy_list, 'confusion_matrix': cm, 'accuracy_unignore': accuracy_unignore_list, 'accuracy_ignore': accuracy_ignore_list}
         _save_result_and_model(save_path_distillation, data, modified_nn_student_reg)
-        _plot_accuracy_and_confusion_matrix(accuracy_list, cm, lab, pred, ignore_class)
+        _plot_accuracy_and_confusion_matrix(save_path_distillation, accuracy_list, cm, lab, pred, ignore_class)
     else:
         print("没有该训练方式")
 
@@ -211,7 +221,6 @@ def train(net, train_loader, testloader, epochs, learning_rate, device, ignore_c
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
         logging.info(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
         train_loss_list.append(running_loss)
         loss, accuracy, lab, pred = evaluate(net, testloader, device)
@@ -220,13 +229,11 @@ def train(net, train_loader, testloader, epochs, learning_rate, device, ignore_c
         accuracy_list.append(accuracy)
         accuracy_unignore_list.append(accuracy_unignore)
         accuracy_ignore_list.append(accuracy_ignore)
-        logging.info(f"Epoch {epoch + 1}/{epochs}, accuracy: {accuracy}")
     return test_loss_list, train_loss_list, accuracy_list, accuracy_unignore_list, accuracy_ignore_list
 
 
 def test_multiple_outputs(model, test_loader, device):
     loss, accuracy, lab, pred = evaluate(model, test_loader, device)
-    print(f"Test Accuracy: {accuracy:.2f}%")
     logging.info(f"Test Accuracy: {accuracy:.2f}%")
     return lab,pred,loss,accuracy
 def train_mse_loss(teacher, student, train_loader, test_loader, epochs, learning_rate, feature_map_weight, ce_loss_weight,
@@ -265,7 +272,6 @@ def train_mse_loss(teacher, student, train_loader, test_loader, epochs, learning
             loss.backward()
             optimizer.step()
             running_loss += loss.item()
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
         logging.info(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
         lab, pred, loss, accuracy = test_multiple_outputs(student, test_loader, device)
         accuracy_unignore, accuracy_ignore = caculate_acc(lab, pred, ignore_class)
@@ -317,9 +323,8 @@ def train_mse_loss_adjust(teacher, student, base, train_loader, val_loader, test
             delta = 0.0001
         else:
             delta = -0.0001
-        print(f'base_unignore:{base_unignore},base_ignore:{base_ignore},accuracy_ignore:{accuracy_ignore},accuracy_unignore:{accuracy_unignore}')
+        logging.info(f'base_unignore:{base_unignore},base_ignore:{base_ignore},accuracy_ignore:{accuracy_ignore},accuracy_unignore:{accuracy_unignore}')
         feature_map_weight, ce_loss_weight = feature_map_weight+delta, ce_loss_weight-delta
-        print(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
         logging.info(f"Epoch {epoch + 1}/{epochs}, Loss: {running_loss / len(train_loader)}")
         lab, pred, loss, accuracy = test_multiple_outputs(student, test_loader, device)
         accuracy_unignore, accuracy_ignore = caculate_acc(lab, pred, ignore_class)

@@ -1,7 +1,7 @@
 num_clients: 5
 num_epochs: 5
 batch_size: 16
-num_rounds: 100
+num_rounds: 50
 clients_per_round: 3
 learning_rate: 0.001
 mu: 1.0
@@ -12,7 +12,7 @@ client_resources:
 server_device: cpu
 dataset_config:
   iid: false
-  alpha: 0.1
+  alpha: 100
   subset_list:
   - 0
   - 1
@@ -25,7 +25,7 @@ dataset_config:
   ignore_class:
   - 8
 model:
-  _target_: kd_project.models.simple_vit.SimpleViT
+  _target_: src.models.simple_vit.SimpleViT
   num_classes: 9
   dim: 16
   depth: 4
@@ -33,14 +33,14 @@ model:
   mlp_dim: 12
   channels: 1
 strategy:
-  _target_: kd_project.fl.strategy.FedAvgWithKnowledge
+  _target_: src.fl.strategy.FedAvgWithKnowledge
   fraction_fit: 1.0e-05
   fraction_evaluate: 0.0
   min_fit_clients: ${clients_per_round}
   min_evaluate_clients: 0
   min_available_clients: ${clients_per_round}
   evaluate_metrics_aggregation_fn:
-    _target_: kd_project.fl.strategy.weighted_average
+    _target_: src.fl.strategy.weighted_average
     _partial_: true
   proximal_mu: ${mu}
 distillation: distillation
@@ -49,7 +49,7 @@ dynamic_weight: false
 add_client: false
 load_params:
   init: true
-  full: false
+  full: true
   distillation_revise: false
   freeze: false
 train:

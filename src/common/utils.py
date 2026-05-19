@@ -125,6 +125,8 @@ def caculate_acc(lab_list,pred_list,ignore_class):
     acc = correct / len(y_true)
     # 筛选出不等于 ignore_class 的元素
     filtered_y_true = [true for true in lab_list if true in ignore_class]
+    if len(filtered_y_true) == 0:      # 如果没有需要单独统计的类别，直接返回 acc 和 1.0（表示 acc_ignore 不适用）
+        return acc, 1.0
     filtered_y_pred = [pred for true, pred in zip(lab_list, pred_list) if true in ignore_class]
     correct = sum(1 for true, pred in zip(filtered_y_true, filtered_y_pred) if true == pred)
     acc_ignore = correct / len(filtered_y_true)

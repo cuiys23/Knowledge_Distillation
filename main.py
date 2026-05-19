@@ -1,20 +1,11 @@
 """运行电池数据集的联邦学习。"""
-import copy
-import os
-import sys
-from pathlib import Path
-
-ROOT_DIR = Path(__file__).resolve().parent
-SRC_DIR = ROOT_DIR / "src"
-if str(SRC_DIR) not in sys.path:
-    sys.path.insert(0, str(SRC_DIR))
-
-from kd_project.core.knowledge_distillation import run_knowledge_distillation
+from src.core.knowledge_distillation import run_knowledge_distillation
+from src.core.federated_runner import run_federated, setup_cuda_env
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig
 import hydra
-
-from kd_project.core.federated_runner import run_federated, setup_cuda_env
+import copy
+import os
 
 setup_cuda_env()
 
@@ -34,7 +25,7 @@ def main(cfg: DictConfig):
     cfg1.save_path_final= stage1_save_path # 保存路径
     run_federated(cfg1, stage1_save_path)
 
-    # stage2: 知识蒸馏（产出 bias/学生模型）
+    # stage2: 知识蒸馏（产出学生模型）
     cfg2 = copy.deepcopy(cfg)
     cfg2.distillation = "distillation" # 进行知识蒸馏
     cfg2.train.unique = True # 使用特殊类型数据处理
@@ -45,14 +36,14 @@ def main(cfg: DictConfig):
 
     # stage3: 使用 stage1 teacher + stage2 distillation_revise 进行再训练（产出 final）
     cfg3 = copy.deepcopy(cfg)
-    cfg3.train.unique = False # 不使用特殊类型数据处理
+    cfg3.train.unique = True # 不使用特殊类型数据处理
     cfg3.add_client = True # 通信受限测控中心(虚拟客户端)加入
     cfg3.load_params.init = False # 不初始化模型参数
     cfg3.load_params.distillation_revise = True # 使用蒸馏修正
     cfg3.weight = True # 使用权重
     cfg3.dynamic_weight = True # 使用动态权重
     cfg3.learning_rate = 0.0001 # 调低学习率
-    cfg3.save_path_source = stage1_save_path # 保存路径
+    cfg3.save_path_source = stage2_save_path # 保存路径
     cfg3.save_path_distillation = stage2_save_path # 保存路径
     cfg3.save_path_final = stage3_save_path # 保存路径
     run_federated(cfg3, stage3_save_path)

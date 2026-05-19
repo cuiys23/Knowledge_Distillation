@@ -1,14 +1,14 @@
 """定义 MNIST 的 Flower 客户端，以及用于实例化客户端的工厂函数。"""
 from collections import OrderedDict
-from typing import Callable, Dict, List, Tuple
+from typing import Callable, Dict, List, Optional, Tuple
 from flwr.common import Context
 from flwr.client.client import Client
 from flwr.common.typing import NDArrays, Scalar
 from hydra.utils import instantiate
 from omegaconf import DictConfig
 from torch.utils.data import DataLoader
-from kd_project.models.models import test, train, load_pretrained_weights
-from kd_project.common.utils import calc_weight_acc
+from src.models.models import test, train, load_pretrained_weights
+from src.common.utils import calc_weight_acc
 import flwr as fl
 import numpy as np
 import torch
@@ -27,8 +27,8 @@ class FlowerClient(
         device: torch.device,
         num_epochs: int,
         learning_rate: float,
-        straggler_schedule: np.ndarray,
-        net_bias = None
+        net_bias: Optional[torch.nn.Module] = None,
+        client_id: int = -1,
     ):
         self.net = net
         self.trainloader = trainloader
@@ -36,9 +36,9 @@ class FlowerClient(
         self.device = device
         self.num_epochs = num_epochs
         self.learning_rate = learning_rate
-        self.straggler_schedule = straggler_schedule
         self.bias_model = net_bias
         self.config = config
+        self.client_id = client_id
 
     def get_parameters(self, config: Dict[str, Scalar]) -> NDArrays:
         """返回当前模型参数。"""
@@ -59,6 +59,9 @@ class FlowerClient(
     ) -> Tuple[NDArrays, int, Dict]:
         """实现客户端的分布式训练函数。"""
         self.set_parameters(parameters)
+        # 仅在 stage3 的虚拟 0 号客户端上跳过再训练；其他阶段仍保持正常训练。
+        if self.config.add_client and self.config.load_params.distillation_revise and self.client_id == 0:
+            return self.get_parameters({}), 0, {"skipped_train": True}
         # # 定义评估函数，交换模型
         # loss_source, _ = test(self.net, self.valloader , self.device)
         # loss_distillation, _ = test(self.bias_model, self.valloader, self.device)
@@ -67,13 +70,12 @@ class FlowerClient(
         #     net_distillation = self.net
         # else:
         net_source = self.net
-        net_distillation = self.bias_model
         weight_acc = None
         if self.config.dynamic_weight:
             _ , accuracy_before = test(net_source, self.valloader, self.device)
         train(
             net_source,
-            net_distillation,
+            self.bias_model,
             self.trainloader,
             self.device,
             epochs=self.num_epochs,
@@ -148,7 +150,8 @@ def gen_client_fn(
             device,
             num_epochs,
             learning_rate,
-            net_bias,
+            net_bias=net_bias,
+            client_id=cid_int,
         ).to_client()
 
     return client_fn

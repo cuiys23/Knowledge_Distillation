@@ -2,7 +2,7 @@
 from torch.nn.parameter import Parameter
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 from pathlib import Path
 import torch.nn as nn
 import torch
@@ -30,7 +30,7 @@ class CNNBattery(nn.Module):
 
 def train(
     net: nn.Module,
-    bias_model: nn.Module,
+    bias_model: Optional[nn.Module],
     trainloader: DataLoader,
     device: torch.device,
     epochs: int,
@@ -70,7 +70,7 @@ def train(
 
 def _train_one_epoch(  # pylint: disable=too-many-arguments
     net: nn.Module,
-    bias_model,
+    bias_model: Optional[nn.Module],
     global_params: List[Parameter],
     trainloader: DataLoader,
     device: torch.device,
@@ -121,7 +121,7 @@ def _train_one_epoch(  # pylint: disable=too-many-arguments
         proximal_term = 0.0
         for local_weights, global_weights in zip(net.parameters(), global_params):
             proximal_term += torch.square((local_weights - global_weights).norm(2))
-        loss = 0.55*criterion(pre, labels) + (proximal_mu / 2) * proximal_term + 0.45*bias_loss
+        loss = 0.10*criterion(pre, labels) + (proximal_mu / 2) * proximal_term + 0.90*bias_loss
         loss.backward()
         optimizer.step()
     return net

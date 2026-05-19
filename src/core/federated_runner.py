@@ -15,10 +15,10 @@ from hydra.utils import instantiate
 from omegaconf import DictConfig, OmegaConf
 from sklearn.metrics import confusion_matrix
 
-from kd_project.fl import client, server
-from kd_project.common import utils
-from kd_project.data.dataset import load_datasets
-from kd_project.models.models import test_more
+from src.fl import client, server
+from src.common import utils
+from src.data.dataset import load_datasets
+from src.models.models import test_more
 
 
 def setup_cuda_env() -> None:
@@ -76,6 +76,7 @@ def run_federated(
     # 根据配置实例化策略。这里传入仅在运行时定义的参数。
     strategy = instantiate(
         cfg.strategy,
+        cfg=cfg,
         evaluate_fn=evaluate_fn,
         on_fit_config_fn=get_on_fit_config(),
     )
