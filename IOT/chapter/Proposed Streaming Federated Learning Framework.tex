@@ -342,7 +342,7 @@ which results in unsatisfactory global model performance.
 		\STATE $u_{t + 1}^i \leftarrow $Test (${{\mathscr D}_{i}}$, $\omega _{t + 1}^i$)
 		\STATE $v_t^i \leftarrow $ Test (${{\mathscr D}_{i}}$, ${\omega _t}$)
 		\STATE ${\gamma ^i} \leftarrow \% \; ({{e^{u_{t + 1}^i - v_t^i}}})  $
-		\STATE ${\pi _{proxy}},{\gamma ^{proxy}} \leftarrow \bar \pi ,\mathcal O\left( {\bar \gamma } \right)$
+		\STATE ${\pi _{proxy}},{\gamma _t^{proxy}} \leftarrow \bar \pi ,\bar C_{\gamma}(t+1)^{-(1+\rho )}$
 		\STATE ${\omega _{t + 1}} \leftarrow \sum\nolimits_{i \in {S_t} \cup proxy} {\phi \left[\kern-0.15em\left[ {{\pi _i}{\gamma ^i}}  \right]\kern-0.15em\right]\omega _{t + 1}^i} $
 		\RETURN ${\omega _{t + 1}}$
 	\end{algorithmic}
@@ -376,6 +376,9 @@ they can further improve their performance on local fault datasets.
 Consequently, the performance of local models trained by unconstrained TT\&C centers 
 in each round will progressively surpass the model performance of the virtual client. 
 At this stage, the virtual client essentially becomes a performance bottleneck. 
-To address this issue, this paper incorporates a decay function $\mathcal{O}(\cdot)$ 
+To address this issue, this paper incorporates an explicit polynomial decay schedule
+\begin{equation}
+	\gamma _t^{proxy}=\bar C_{\gamma}(t+1)^{-(1+\rho )}, \qquad \rho > 0,
+\end{equation}
 into the weight coefficient of the communication-constrained TT\&C center 
-to mitigate the negative impact of the virtual client during model aggregation.
+to mitigate the negative impact of the virtual client during model aggregation. This explicit schedule is also the form required by the convergence analysis to make the proxy residual term summable.
