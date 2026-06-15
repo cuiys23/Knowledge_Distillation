@@ -25,7 +25,7 @@ By \(\|a+b\|^2 \le 2\|a\|^2 + 2\|b\|^2\):
 \noindent\textbf{Step 2d --- Weighted summation.}
 \(\sum_k p_k\,\mathbb E_t\|g_{t,i}^k\|^2
  \le 2\sigma_l^2 + 4\sum_k p_k\|\nabla F_k(\omega_t)\|^2 + 4L^2 D_i\).
-Using the heterogeneity assumption~\ref{asmp:6}:
+Using the heterogeneity assumption~\ref{asmp:2}:
 \(\le A_t + 4L^2 D_i,\; A_t \triangleq 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F\|^2\).
 
 \noindent\textbf{Steps 3--5 --- Solve via prefix maximum.}
@@ -204,7 +204,7 @@ With \(\eta_t = \eta_0/\sqrt{t+1}\):
 Proposition~\ref{prop:7} guarantees that Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
 
 \noindent\textbf{Step 2.}
-From \(\widetilde F_{t+1}(\omega_{t+1}) \le \widetilde F_t(\omega_{t+1}) + \varepsilon_t\) (Assumption~\ref{asmp:11}),
+From \(\widetilde F_{t+1}(\omega_{t+1}) \le \widetilde F_t(\omega_{t+1}) + \varepsilon_t\) (Assumption~\ref{asmp:4}),
 taking full expectation:
 \begin{align*}
   \mathbb E[\widetilde F_{t+1}]
