@@ -14,54 +14,22 @@ or a new communication-constrained TT\&C center joins the system, the framework 
 	\label{fig:streaming-federated-learning-framework}
 \end{figure}
 
-\textit{Stage 1}: All unconstrained TT\&C centers first retrieve the global model from the central server 
-and then conduct local training using their individual satellite fault datasets. 
-After finishing local training, each center transmits its updated model parameters to the central server. 
-Once the server receives parameters from all unconstrained TT\&C centers, 
-it executes a model aggregation procedure to generate updated global model parameters, 
-which are then redistributed to all participating centers. This process iterates until convergence criteria are met.
+\textit{Stage 1}: Unconstrained TT\&C centers perform standard federated training~\cite{mcmahan2017communication}: each center downloads the global model, trains locally, and uploads updated parameters; the server aggregates and redistributes until convergence.
 
-\textit{Stage 2}: The central server disseminates the converged global model (gray), 
-containing the accumulated knowledge from all unconstrained TT\&C centers, to every communication-limited TT\&C center. 
-This model serves as the foundational knowledge base for subsequent incremental learning processes in communication-constrained environments.
+\textit{Stage 2}: The converged global model is disseminated to every communication-constrained center as the foundational knowledge base for incremental learning.
 
-\textit{Stage 3}: Execute the Incremental Learning Algorithm based on Dual-Domain Knowledge Distillation 
-(IL-DDKD) described in Section~\ref{sec:proposed_framework}-\ref{section:3-1}. 
-During this stage, the global model (gray) functions solely in inference mode, 
-serving as a knowledge source to guide communication-constrained TT\&C centers in learning their respective partial models (blue). 
-This knowledge transfer enables communication-constrained centers to acquire specialized capabilities 
-for handling new fault types while preserving previously learned knowledge.
+\textit{Stage 3}: Execute the IL-DDKD algorithm (Section~\ref{section:3-1}). The global model operates in inference mode, guiding communication-constrained centers to learn partial models that handle new fault types while preserving prior knowledge.
 
-\textit{Stage 4}: Each communication-limited TT\&C center transmits its trained partial model (blue) to the central server for storage. 
-The central server maintains a repository of partial models, where each model corresponds to a specific communication-constrained center. 
-When a TT\&C center uploads a new partial model, the central server replaces any existing model from the same center, 
-ensuring that only the most recent knowledge is retained for subsequent federated learning rounds.
+\textit{Stage 4}: Each constrained center uploads its partial model to the central server, which maintains one model per center and replaces older versions with newly uploaded ones.
 
-\textit{Stage 5}: Execute the Federated Learning Algorithm based on Partial Forgetting Compensation 
-(FL-PFC) detailed in Section~\ref{sec:proposed_framework}-\ref{section:3-2}. 
-During this stage, the stored partial models (blue) actively participate in the federated learning process 
-by assisting unconstrained TT\&C centers with model training. 
-Simultaneously, these partial models contribute to the central server's model parameter aggregation and global model updates. 
-The global model undergoes continuous refinement and enhancement through this collaborative learning mechanism, 
-transitioning from its initial state (gray) to an improved state (orange).
+\textit{Stage 5}: Execute the FL-PFC algorithm (Section~\ref{section:3-2}). Stored partial models participate in federated learning, assisting unconstrained centers with training and contributing to global model aggregation. The global model is continuously refined, transitioning from its initial to an enhanced state.
 
-\textit{Stage 6}: The central server periodically synchronizes the enhanced global model (orange) with all communication-constrained TT\&C centers. 
-This periodic update ensures that communication-constrained centers maintain access to the latest fault diagnosis capabilities, 
-enabling them to benefit from the collective knowledge acquired through the federated learning process. 
-The synchronization rate may be modified according to network conditions and fault detection requirements.
+\textit{Stage 6}: The central server periodically synchronizes the enhanced global model with all constrained centers, at a rate adaptable to network conditions.
 
 % Algorithm 1: Incremental Learning Algorithm Based on Dual-Domain Knowledge Distillation
 \subsection{Incremental Learning Algorithm Based on Dual-Domain Knowledge Distillation}\label{section:3-1}
-Building upon the Learning Without Forgetting approach~\cite{li2017learning} originally designed for task incremental learning~\cite{masana2022class}, 
-we develop a dual-domain knowledge distillation~\cite{hinton2015distilling} based incremental learning technique tailored for class incremental challenges in satellite fault diagnosis. 
-Our method employs a ``teacher-student'' paradigm, 
-wherein the teacher model imparts its accumulated expertise to the student model, 
-empowering the student to master new categories while retaining existing knowledge.
-Due to the limited expressive power of label information, 
-we obtain more distinctive feature representations from the intermediate layers of the teacher model.
-The architectural diagram of this method is presented in Fig. \ref{fig:knowledge-distillation}.
-Within this structure, the teacher model aligns with the original global model (gray) shown in Fig. \ref{fig:streaming-federated-learning-framework}, 
-whereas the student model represents the partial model intended for training (blue) as illustrated in Fig. \ref{fig:streaming-federated-learning-framework}.
+Building on Learning Without Forgetting~\cite{li2017learning} and knowledge distillation~\cite{hinton2015distilling}, we develop a dual-domain distillation technique for class-incremental satellite fault diagnosis. The teacher is the global model and the student is the partial model under training (Fig.~\ref{fig:knowledge-distillation}). To address the teacher-student capacity gap~\cite{mirzadeh2020improved}, we employ module sharing, and for new fault categories, output-layer nodes are added with randomly initialized weights.
+
 \begin{figure}[t]
 	\centering
 	\includegraphics[width=\columnwidth]{fig/Proposed Streaming Federated Learning Framework/Incremental learning algorithm based on dual-domain knowledge distillation.pdf}
@@ -69,11 +37,7 @@ whereas the student model represents the partial model intended for training (bl
 	\label{fig:knowledge-distillation}
 \end{figure}
 
-Given the potential performance discrepancy between teacher and student models, 
-students may struggle to efficiently absorb knowledge from teachers~\cite{mirzadeh2020improved}. 
-To overcome this limitation, we employ module sharing between teacher and student architectures to enhance knowledge transfer efficiency. 
-When dealing with new fault categories, additional nodes are incorporated into the network's output layer, with connection weights between these nodes and the previous layer randomly initialized. 
-The loss function formulation during network training is expressed as follows:
+The loss function is:
 
 \textbf{Supervised Loss}: This loss function is formulated to allow the partial model 
 to efficiently learn fault data from the newly added TT\&C center. 
@@ -121,29 +85,14 @@ are combined as the loss function of dual-domain distillation:
 	{\mathcal {L_{KD}}} = {\mathcal L_{f}}\left( {{\theta _{stu}};{\theta _{tea}};{W_r},{\mathcal X_{new}}} \right) + {\mathcal L_{par}}\left( {{\theta _{stu}};{\theta _{tea}}} \right).
 \end{equation}
 
-The supervised loss focuses on the performance of the algorithm on new fault classes, 
-whereas the dual-domain distillation loss concentrates on the algorithm's performance regarding previous fault classes. 
-The combination of these two components constitutes the overall training objective:
+The combined training objective is:
 \begin{equation}
 	{\mathcal L_{Dual}} = {\mathcal {L_C}}\left( {{\theta _{stu}};{{\mathscr D}_{new}}} \right) + {\lambda _o}{\mathcal {L_{KD}}}\left( {{\theta _{stu}};{\theta _{tea}};{W_r},{\mathcal X_{new}}} \right),
 \end{equation}
 where ${\lambda _o} > 0$ denotes the weighting parameter employed to balance the algorithm's performance between previous faults and new faults.
 
-This paper employs an adaptive adjustment strategy for the weight coefficient ${\lambda _o}$.
-Specifically, prior to training the student model, 
-the teacher model is first duplicated and fine-tuned on the new TT\&C center's fault dataset ${\mathscr D}_{new}$ 
-to obtain the baseline recognition accuracy $\mathcal{A}*$ on the new TT\&C center's faults. 
-During the student model training process, a relatively large initial weight coefficient $\lambda_0$ 
-is set to ensure minimal forgetting of previously learned faults, 
-while establishing a performance threshold $\varTheta$ and a decay function $\mathcal{G}$. 
-Subsequently, the recognition accuracy of the student model on the new TT\&C center's fault data is continuously monitored. 
-If the student model's recognition accuracy on the new TT\&C center's fault data 
-fails to reach the predefined performance threshold $(1-\varTheta)\mathcal{A}*$, 
-the weight coefficient $\lambda_0$ is decayed according to $\lambda_0\rightarrow \mathcal{G}(\lambda_0)$, 
-until the student model meets the expected performance requirements 
-on the new TT\&C center's fault recognition task.
+The weight coefficient $\lambda_o$ is adaptively adjusted: after fine-tuning the teacher to obtain a baseline accuracy $\mathcal{A}^*$, $\lambda_o$ is initialized large and decayed via $\mathcal{G}$ whenever the student's accuracy falls below $(1-\varTheta)\mathcal{A}^*$ (Algorithm~\ref{Alg:IL-DDKD}).
 
-Algorithm \ref{Alg:IL-DDKD} presents the complete execution process of the IL-DDKD algorithm.
 \begin{algorithm}[t]
 	\caption{IL-DDKD Algorithm}
 	\label{Alg:IL-DDKD}
@@ -191,21 +140,9 @@ this paper implements a virtual client as a proxy server for each communication-
 The proxy server stores the model trained by the communication-constrained TT\&C center 
 and applies partial forgetting compensation to the entire system, 
 ensuring that model parameter updates remain within the target range.
-Considering the privacy leakage risks associated with model parameters or gradients~\cite{hitaj2017deep}, 
-the proxy server provides white-box access exclusively to the highly trusted central server, 
-while offering black-box access to individual TT\&C centers. 
-The architecture of the federated learning algorithm based on partial forgetting compensation is illustrated in Fig. \ref{fig:partial-forgetting-compensation},
-and the complete execution process is detailed in Algorithm \ref{Alg:FL-PFC}. 
-The algorithm achieves model parameter updates through iterative interactions between the central server and the TT\&C centers. 
-Each round of federated learning encompasses the following four steps:
+For privacy (see Section~\ref{sec:Related_Work}), the proxy server grants white-box access only to the central server and black-box access to individual centers. Fig.~\ref{fig:partial-forgetting-compensation} illustrates the architecture and Algorithm~\ref{Alg:FL-PFC} details the execution. Each round consists of four steps:
 
-\textbf{Global Model Download}: The central server chooses a subset of TT\&C centers for distributing the global model $\omega_t$ 
-(where $t$ denotes the federated learning round) 
-according to McMahan et al. \cite{mcmahan2017communication}, who found that selecting only a subset of clients for gradient descent 
-in each federated learning round can yield a regularization effect comparable to Dropout. 
-This paper employs a random selection strategy for TT\&C centers. 
-However, if information regarding the effectiveness, reliability, and other relevant aspects of each TT\&C center becomes available, 
-more sophisticated selection strategies can be developed based on this information to further enhance algorithm performance.
+\textbf{Global Model Download}: The server randomly selects a subset of centers and distributes the global model $\omega_t$, following the standard partial-participation scheme~\cite{mcmahan2017communication}.
 
 \textbf{Local Model Update}: The selected TT\&C centers utilize ${\omega _t}$ as the initial model and perform training 
 on their respective local fault data ${{\mathscr D}_{i}}$ using the \textit{inheritance distillation method} 
@@ -265,11 +202,7 @@ ${\mathcal P_i}\left( {\omega _{t,e}^i, {\mathcal X_i}} \right)$ indicates the p
 ${\mathcal Y_i}$ represents the ground truth labels, 
 and ${{\mathcal D}_{\rm{CE}}}\left( { \cdot ,\cdot } \right)$ denotes the cross-entropy loss function.
 
-\textbf{Distillation loss}: This loss function is designed to enable the local model to continuously acquire fault knowledge from the partial model. 
-The knowledge transfer is accomplished by transmitting the attention maps generated from the intermediate layers of the partial model to the local model, 
-guiding the local model to focus on the same regions as the partial model, 
-thereby facilitating the learning of fault knowledge from the communication-constrained TT\&C center.
-The distillation loss function $\mathcal L_{\mathcal KD}^i$ for TT\&C center $i$ is defined as follows:
+\textbf{Distillation loss}: As in IL-DDKD, knowledge transfer uses intermediate-layer attention maps to align the local model's focus with the partial model. The distillation loss $\mathcal L_{\mathcal KD}^i$ is:
 \begin{equation}
 	\label{eq:LKDi}
 	\mathcal L_{\mathcal KD}^i = \frac{1}{2}{\left\| {{u_i}\left( {\theta _ \times ^ * ,{\mathcal  X_i}} \right) - {\gamma _i}\left( {{v_i}\left( {\omega _{t,e}^i,{\mathcal  X_i}} \right),W_r^i} \right)} \right\|^2},

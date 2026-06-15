@@ -1,7 +1,7 @@
 \section{SIMULATION RESULTS}\label{sec:simulation-results}
 To verify the effectiveness of the streaming federated learning framework for satellite system fault diagnosis, 
 this paper designs a simulation experiment with 1 central server node and 6 TT\&C center nodes.
-The central server is a logical entity responsible for coordinating the federated learning process, including distributing global models, aggregating local model updates, and maintaining partial models from communication-constrained TT\&C centers. It can be implemented either as a dedicated physical server or as a virtual node in cloud environments.
+The central server is a logical entity that coordinates model distribution, update aggregation, and maintains partial models for communication-constrained centers.
 Among the TT\&C centers, 5 centers have no communication constraints, 
 while 1 TT\&C center has communication constraints (this configuration aligns with the scale of China's TT\&C centers).
 
@@ -16,9 +16,7 @@ and sensing disturbances. Four domain-specific approaches are developed for sate
 (2) Random temporal shifts to mimic timing offsets in anomaly detection;
 (3) Amplitude scaling to simulate variations in lighting and temperature conditions;
 (4) Temporal masking to simulate telemetry data loss during operation.
-\added[id=cuiys]{These augmentation techniques are combined into a unified pipeline to emulate practical scenarios 
-that are difficult to fully capture in collected data, 
-thereby enabling the model to better adapt to diverse temporal patterns and complex space environments encountered in real satellite operations.}
+\added[id=cuiys]{These augmentations compose a unified pipeline to emulate real on-orbit operating conditions.}
 
 To emulate the Non-IID characteristics of fault data across TT\&C centers, 
 we employ the Dirichlet distribution for data partitioning, where parameter $\alpha$ controls the distribution sharpness~\cite{hsu2019measuring}. 
@@ -70,19 +68,7 @@ Dataset 2 includes fault data solely from the communication-constrained TT\&C ce
 Dataset 3 represents the aggregated dataset comprising all fault instances from every TT\&C center 
 (containing nine fault classes in total, with the ninth class being exclusive to the constrained TT\&C center).
 
-Fig. \ref{fig:performance_across_datasets} illustrates the model's behavior across multiple datasets through different training phases. 
-The outcomes highlight two principal capacities of the proposed framework:
-First, during the learning phase at communication-constrained TT\&C centers, 
-the dual-domain knowledge distillation-based incremental learning approach empowers the model to efficiently gain internal expertise 
-while predominantly maintaining formerly acquired external knowledge (as demonstrated by consistent performance on Dataset 1). 
-Second, during the learning phase at unconstrained TT\&C centers, 
-the forgetting compensation functionality offered by the proxy server permits the model to continually integrate fresh external knowledge 
-while efficiently preserving internal knowledge (as confirmed by persistent performance on Dataset 2).  
-When benchmarked against ``joint training" with all fault data centralized at a single TT\&C center—
-representing the theoretical performance upper bound—the proposed method achieves competitive results.
-An important distinction to note is that the training timeline depicted in Fig.~\ref{fig:performance_across_datasets} 
-should not be confused with federated learning rounds; specifically, the communication-constrained TT\&C center 
-engages in only a single federated learning round throughout the entire process.
+Fig.~\ref{fig:performance_across_datasets} confirms two key properties: (1) the dual-domain knowledge distillation preserves external knowledge during constrained-center learning (stable Dataset~1); and (2) the proxy-server forgetting compensation preserves internal knowledge during unconstrained-center learning (stable Dataset~2). The proposed method approaches the centralized joint-training upper bound, with the constrained center participating in only a single FL round.
 
 \begin{figure}[t]
 	\centering
@@ -132,11 +118,7 @@ Fig. \ref{fig:comparison_with_sota_satellite_fault_diagnosis} presents the perfo
 and contemporary satellite system fault diagnosis approaches, 
 particularly the state-of-the-art Dual-aspect Time Series Transformer (DTST) method~\cite{xu2024dtst}, 
 which represents a specialized space system fault diagnosis technique.
-To ensure equitable comparison conditions, we acknowledge that in practical deployments, 
-each TT\&C center typically encounters only a subset of all possible fault patterns. 
-However, for the purpose of rigorous benchmarking, we adopt a modified experimental setup where all fault types are assigned to a single TT\&C center 
-while maintaining extremely sparse sample representation for certain fault classes. 
-This configuration enables meaningful performance assessment while preserving the essential characteristics of real-world data distribution challenges.
+For fair comparison, all fault types are assigned to a single center with sparse samples for rare classes, preserving realistic data heterogeneity.
 
 \begin{figure}[t]
 	\centering
@@ -145,14 +127,7 @@ This configuration enables meaningful performance assessment while preserving th
 	\label{fig:comparison_with_sota_satellite_fault_diagnosis}
 \end{figure}
 
-As demonstrated, the DTST algorithm, when trained on limited fault datasets, 
-exhibits significant challenges in learning from data-scarce fault samples, consequently resulting in constrained recognition capabilities. 
-Although such performance may satisfy conventional evaluation metrics (as many studies require $\ge 80$\% accuracy for fault diagnosis), 
-it proves inadequate for practical deployment due to complete recognition failure for certain critical fault classes,
-as empirically validated by the confusion matrix in Fig.~\ref{fig:confusion-matrix-dtst}. 
-In contrast, our proposed methodology successfully amalgamates fault knowledge from all participating TT\&C centers, 
-systematically overcoming the inherent limitations imposed by single-center data constraints regarding both fault diversity and sample sufficiency,
-as illustrated in Fig.~\ref{fig:confusion-matrix-proposed}.
+DTST struggles with data-scarce fault classes---even if aggregate accuracy exceeds 80\%, it fails completely on certain critical classes (Fig.~\ref{fig:confusion-matrix-dtst}). The proposed method aggregates knowledge across centers, overcoming these limitations (Fig.~\ref{fig:confusion-matrix-proposed}).
 
 \begin{figure}[t]
 	\centering
@@ -167,14 +142,7 @@ as illustrated in Fig.~\ref{fig:confusion-matrix-proposed}.
 	\label{fig:confusion-matrix-proposed}
 \end{figure}
 
-Fig.~\ref{fig:comparison_with_federated_learning_methods} presents the performance comparison results between the proposed algorithm and the base Fed-Avg algorithm~\cite{mcmahan2017communication}. 
-Experimental results demonstrate that compared to the traditional multi-iteration Fed-Avg approach, 
-the proposed algorithm requires only a single federated learning iteration with the communication-constrained TT\&C center to train a well-performing and stable model. 
-In contrast, when the standard Fed-Avg algorithm operates with only a single iteration involving the communication-constrained TT\&C center, 
-its performance degrades significantly after that center ceases participation in federated learning due to the lack of forgetting compensation mechanisms. 
-Additionally, due to the extreme heterogeneity of the data, the Fed-Avg algorithm exhibits highly unstable performance during the training process. 
-However, when the proposed method is incorporated into the multi-iteration Fed-Avg algorithm, the stability of the overall approach can be significantly enhanced. 
-This demonstrates that the suggested approach can also enhance the robustness of federated learning algorithms effectively.
+Fig.~\ref{fig:comparison_with_federated_learning_methods} compares our algorithm with Fed-Avg~\cite{mcmahan2017communication}. The proposed method trains a stable model using a single FL round with the constrained center, whereas Fed-Avg degrades severely after that center withdraws due to catastrophic forgetting and data heterogeneity. Incorporating our method into multi-round Fed-Avg also stabilizes convergence.
 
 \begin{figure}[t]
 	\centering
@@ -236,8 +204,7 @@ thereby providing comprehensive insights into the framework's adaptability acros
 
 Fig. \ref{fig:algorithm_performance_vs_heterogeneity} illustrates the algorithm's performance characteristics 
 under varying degrees of data heterogeneity, as controlled by the parameter $\alpha$. 
-Empirical results demonstrate that the proposed algorithm maintains robust performance stability for $\alpha \ge 1$, 
-with only marginal performance degradation observed at $\alpha = 0.1$. 
+The proposed algorithm maintains stable performance for $\alpha \ge 1$, with only marginal degradation at $\alpha = 0.1$ (Fig.~\ref{fig:algorithm_performance_vs_heterogeneity}).
 
 \begin{figure}[t]
 	\centering
@@ -248,7 +215,4 @@ with only marginal performance degradation observed at $\alpha = 0.1$.
 
 Fig. \ref{fig:algorithm_performance_vs_client_count} illustrates the algorithm's performance characteristics 
 under varying numbers of TT\&C centers, thereby evaluating its scalability properties. 
-Experimental results demonstrate that the proposed algorithm exhibits minimal performance variation 
-across different client configurations, indicating robust insensitivity to client count fluctuations. 
-This superior scalability characteristic constitutes a fundamental advantage for large-scale deployment scenarios 
-and provides essential technical foundation for future engineering implementations in diverse satellite network architectures.
+The proposed algorithm exhibits minimal performance variation across client counts, confirming scalability to larger deployments (Fig.~\ref{fig:algorithm_performance_vs_client_count}).
