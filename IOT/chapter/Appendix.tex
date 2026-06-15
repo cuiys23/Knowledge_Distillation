@@ -1,4 +1,4 @@
-\appendix
+\appendix\label{app:B}
 \subsection*{Lemma~\ref{lem:1} (Client Drift Bound)}
 
 \noindent\textbf{Step 1 --- Drift recursion.}
@@ -86,8 +86,7 @@ Applying Young's inequality (with \(\alpha = 1/2\) for (A), \(\alpha = 1/2\) for
 Summing:
 \begin{align*}
   \mathbb E_t\langle\nabla F, \Delta_t\rangle
-  &\le -\tfrac{3}{8}\eta_t E\|\nabla F\|^2 \notag\\
-  &\quad + \eta_t E\|\delta_t\|^2 \notag\\
+  &\le -\tfrac{3}{8}\eta_t E\|\nabla F\|^2 \quad + \eta_t E\|\delta_t\|^2 \notag\\
   &\quad + \eta_t E\!\cdot\! B_\mu^2
      + \tfrac{2}{\eta_t E}\,\mathbb E_t\|r_t\|^2.
 \end{align*}
@@ -181,14 +180,17 @@ With \(\eta_t = \eta_0/\sqrt{t+1}\):
 \(S_T \ge \eta_0\sqrt{T}\;(T\ge 4)\), \(\sum\eta_t^2 \le \eta_0^2(1 + \ln T)\).
 
 \noindent\textbf{Step 6 (Four-term substitution).}
-\begin{itemize}\setlength\itemsep{0pt}
-  \item[] \(\displaystyle\frac{8}{E S_T}\Delta_F \le \frac{8\Delta_F}{E\eta_0\sqrt{T}}\)
-  \item[] \(\displaystyle\frac{8}{E S_T}\,c_1 E^2(\cdots)\sum\eta_t^2
+
+\(\displaystyle\frac{8}{E S_T}\Delta_F \le \frac{8\Delta_F}{E\eta_0\sqrt{T}}\)
+
+\(\displaystyle\frac{8}{E S_T}\,c_1 E^2(\cdots)\sum\eta_t^2
            \le \frac{8c_1 E\eta_0(1+\ln T)}{\sqrt{T}}(\sigma_l^2 + \kappa^2 + 4G^2)\)
-  \item[] \(\displaystyle\frac{8}{E S_T}\cdot 4c_2 G^2 E \cdot S_T = 32 c_2 G^2 E\)
+
+\(\displaystyle\frac{8}{E S_T}\cdot 4c_2 G^2 E \cdot S_T = 32 c_2 G^2 E\)
            (\textbf{error floor}, \(S_T\) cancels)
-  \item[] \(\displaystyle\frac{8}{E S_T}\mathcal R_\infty \le \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}}\)
-\end{itemize}
+           
+\(\displaystyle\frac{8}{E S_T}\mathcal R_\infty \le \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}}\)
+
 
 \noindent\textbf{Step 7 (Residual convergence verification).}
 \(\mathcal R_\infty

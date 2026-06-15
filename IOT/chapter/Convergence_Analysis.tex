@@ -158,11 +158,11 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
   Under Assumptions~\ref{asmp:1}, \ref{asmp:6}, and \ref{asmp:8}:
   \begin{align}
     \min_{0 \le t < T} \mathbb E\|\nabla F(\omega_t)\|^2
-    &\le \frac{8\Delta_F}{E\eta_0\sqrt{T}}
+    &\le \frac{8c_1 E\eta_0(1 + \ln T)}{\sqrt{T}}\,
+          (\sigma_l^2 + \kappa^2 + 4G^2) \notag\\
+    &\quad + \frac{8\Delta_F}{E\eta_0\sqrt{T}}
        + \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}}
-       + 32 c_2 G^2 E \notag\\
-    &\quad + \frac{8c_1 E\eta_0(1 + \ln T)}{\sqrt{T}}\,
-          (\sigma_l^2 + \kappa^2 + 4G^2),
+       + 32 c_2 G^2 E, 
     \label{eq:36}
   \end{align}
   where \(\Delta_F \triangleq F(\omega_0) - F_{\inf}\) and
@@ -217,9 +217,9 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
     &\le \frac{8\widetilde\Delta_0}{E\eta_0\sqrt{T}}
        + \frac{8\mathcal E_\infty}{E\eta_0\sqrt{T}}
        + \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}} \notag\\
-    &\quad + 32 c_2 G^2 E \notag\\
     &\quad + \frac{8c_1 E\eta_0(1 + \ln T)}{\sqrt{T}}\,
-          (\sigma_l^2 + \kappa^2 + 4G^2),
+          (\sigma_l^2 + \kappa^2 + 4G^2) \notag\\
+    &\quad + 32 c_2 G^2 E, 
     \label{eq:42}
   \end{align}
   where \(\widetilde\Delta_0 \triangleq \widetilde F_0(\omega_0) - \widetilde F_{\inf}\).
