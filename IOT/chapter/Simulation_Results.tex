@@ -3,7 +3,7 @@ To verify the effectiveness of the streaming federated learning framework for sa
 this paper designs a simulation experiment with 1 central server node and 6 TT\&C center nodes.
 The central server is a logical entity that coordinates model distribution, update aggregation, and maintains partial models for communication-constrained centers.
 Among the TT\&C centers, 5 centers have no communication constraints, 
-while 1 TT\&C center has communication constraints (this configuration aligns with the scale of China's TT\&C centers).
+while 1 TT\&C center has communication constraints (a configuration aligned with the scale of China's TT\&C centers).
 
 \added[id=cuiys]{The fault data used in this study is generated through a Simulink-based simulation framework~\cite{liu2015fault} that is calibrated against real telemetry from real satellite system.
 Specifically, we first perform comparative analysis between simulated signals and measured telemetry, and then tune the simulation parameters to align key characteristics, 
@@ -18,7 +18,7 @@ and sensing disturbances. Four domain-specific approaches are developed for sate
 (4) Temporal masking to simulate telemetry data loss during operation.
 \added[id=cuiys]{These augmentations compose a unified pipeline to emulate real on-orbit operating conditions.}
 
-To emulate the Non-IID characteristics of fault data across TT\&C centers, 
+To emulate the non-IID characteristics of fault data across TT\&C centers, 
 we employ the Dirichlet distribution for data partitioning, where parameter $\alpha$ controls the distribution sharpness~\cite{hsu2019measuring}. 
 Fig.~\ref{fig:alpha_comparison} visualizes how the dataset partitioning outcomes change as $\alpha$ varies.
 
@@ -52,7 +52,7 @@ Each participating center executes 5 local training epochs per federated round u
 which is deliberately reduced from the initial training phase to ensure stable convergence
 and optimal performance within practical epoch constraints.}
 
-\added{All simulations in this paper are conducted under an extreme yet representative scenario:
+\added{All simulations use a challenging but representative scenario:
 the communication-constrained TT\&C center simultaneously hosts fault categories
 that are entirely disjoint from those present in other TT\&C centers.
 This configuration mimics challenging real-world conditions where certain ground stations encounter unique fault patterns

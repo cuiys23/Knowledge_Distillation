@@ -41,7 +41,7 @@ The loss function is:
 
 \textbf{Supervised Loss}: This loss function is formulated to allow the partial model 
 to efficiently learn fault data from the newly added TT\&C center. 
-The cross entropy loss function is utilized for this objective:
+The cross-entropy loss is used for this objective:
 \begin{equation}
 	{\mathcal {L_C}}\left( {{\theta _{stu}}; {{\mathscr D}_{new}}} \right) =  - {{\bf{1}}_{{\mathcal Y_{new}}}} \log { \tilde{\mathcal Y}_{new}},
 	\label{eq:LC}
@@ -57,10 +57,7 @@ This loss component enables the partial model to continually assimilate fault kn
 Knowledge transfer is achieved by forwarding the attention maps produced by the intermediate layers of the partial model to the local model, 
 directing the local model to concentrate on identical areas as the partial model, 
 thus enabling data-domain distillation. 
-Given that straightforward 1:1 alignment between feature representations of teacher and student models lacks theoretical grounding, 
-we incorporate a regressor between them to enhance the alignment procedure \cite{romero2014fitnets}. 
-Such architecture offers adaptability in the student model's training phase, 
-preventing simple replication of the teacher model's representations by the student model.
+Since direct one-to-one alignment between teacher and student feature representations lacks theoretical grounding, we incorporate a regressor between them~\cite{romero2014fitnets}, enabling the student to learn more flexible representations rather than naively copying the teacher.
 The loss function for data-domain distillation ${\mathcal L_{f}}$ is defined as follows:
 \begin{equation}
 	{\mathcal L_{f}} = \frac{1}{2}{\left\| {u\left( {{{\theta _{tea}}}; {\mathcal X_{new}}} \right) - \gamma \left( {v\left( {\theta _{stu}; {\mathcal X_{new}}} \right); {W_r}} \right)} \right\|^2},
@@ -89,7 +86,7 @@ The combined training objective is:
 \begin{equation}
 	{\mathcal L_{Dual}} = {\mathcal {L_C}}\left( {{\theta _{stu}};{{\mathscr D}_{new}}} \right) + {\lambda _o}{\mathcal {L_{KD}}}\left( {{\theta _{stu}};{\theta _{tea}};{W_r},{\mathcal X_{new}}} \right),
 \end{equation}
-where ${\lambda _o} > 0$ denotes the weighting parameter employed to balance the algorithm's performance between previous faults and new faults.
+where ${\lambda _o} > 0$ denotes the weighting parameter employed to balance performance on previous and new fault classes.
 
 The weight coefficient $\lambda_o$ is adaptively adjusted: after fine-tuning the teacher to obtain a baseline accuracy $\mathcal{A}^*$, $\lambda_o$ is initialized large and decayed via $\mathcal{G}$ whenever the student's accuracy falls below $(1-\varTheta)\mathcal{A}^*$ (Algorithm~\ref{Alg:IL-DDKD}).
 
@@ -211,7 +208,7 @@ and ${{\mathcal D}_{\rm{CE}}}\left( { \cdot ,\cdot } \right)$ denotes the cross-
 $\gamma_i$ is the mapper, and $W^i_r$ are the model parameters of the regressor,
 ${u_i}$ and ${v_i}$ are the feature vectors output by the partial model and the local model, respectively. 
 
-The integration of the classification loss in \eqref{eq:LCi} and the distillation loss in \eqref{eq:LKDi} constitutes the complete training objective:
+The total training objective combines the classification and distillation losses:
 \begin{equation}
 	{\mathcal L^i} = \mathcal L_C^i\left( {\omega _{t,e}^i,{{\mathscr D}_i}} \right) + {\lambda ^i}\mathcal L_{\mathcal KD}^i\left( {\omega _{t,e}^i;\theta _ \times ^ * ;W_r^i,{\mathcal X_i}} \right),
 \end{equation}
@@ -219,17 +216,14 @@ where $\lambda^i > 0$ is the weight coefficient
 used to balance the learning performance of the local model on its own TT\&C center's fault data 
 and the communication-constrained TT\&C center's fault data.
 
-Drawing on the approach from \cite{li2020federated}, this paper introduces a regularization term into the objective function 
-to mitigate the impact of data heterogeneity among TT\&C centers. The final objective function of the algorithm is expressed as follows:
+Following~\cite{li2020federated}, we introduce a proximal regularization term to mitigate the impact of data heterogeneity among TT\&C centers. The final objective function of the algorithm is expressed as follows:
 \begin{equation}
 	{{\tilde {\mathcal  L^i}}} = \mathcal L_C^i + {\lambda ^i}\mathcal L_{\mathcal KD}^i + \frac{\mu }{2}{\left\| {\omega _{t,e}^i - {\omega _t}} \right\|^2},
 \end{equation}
 where ${\omega _t}$ denotes the global model parameters disseminated by the central server during the $t$-th round, 
 and $\mu$ is the penalty constant that is adaptively adjusted \cite{li2020federated}. 
 Specifically, this paper adopts a simple heuristic strategy: 
-when the objective function value exhibits an upward trend, the penalty constant $\mu$ is increased to enhance the constraint effect; 
-conversely, when the objective function value continues to decrease, 
-the penalty constant $\mu$ is appropriately reduced to accelerate convergence. 
+$\mu$ is increased when the objective function rises and decreased when it falls.
 Algorithm \ref{Alg:Inheritance_Distillation_Method} presents the complete execution process of the inheritance distillation method.
 
 \begin{algorithm}[t]
@@ -298,8 +292,7 @@ Interestingly, in the model aggregation process,
 local models with poorer performance are intentionally assigned higher weights. 
 An intuitive explanation is that models requiring more learning in previous rounds 
 should receive greater attention in subsequent training iterations. 
-This design effectively compensates for weak performers 
-and thereby enhances the overall performance and robustness of the model.
+This design strengthens weaker performers and thereby enhances overall model robustness.
 
 Furthermore, throughout the entire federated learning process, 
 unconstrained TT\&C centers gradually acquire 
