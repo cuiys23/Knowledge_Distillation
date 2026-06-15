@@ -1,4 +1,4 @@
-\section{STREAMING FEDERATED LEARNING FOR SATELLITE FAULT DIAGNOSIS}\label{sec:Proposed Streaming Federated Learning Framework}
+\section{STREAMING FEDERATED LEARNING FOR SATELLITE FAULT DIAGNOSIS}\label{sec:proposed_framework}
 % Framework overview and workflow diagram
 
 % Detailed implementation stages
@@ -26,7 +26,7 @@ containing the accumulated knowledge from all unconstrained TT\&C centers, to ev
 This model serves as the foundational knowledge base for subsequent incremental learning processes in communication-constrained environments.
 
 \textit{Stage 3}: Execute the Incremental Learning Algorithm based on Dual-Domain Knowledge Distillation 
-(IL-DDKD) described in Section~\ref{sec:Proposed Streaming Federated Learning Framework}-\ref{section:3-1}. 
+(IL-DDKD) described in Section~\ref{sec:proposed_framework}-\ref{section:3-1}. 
 During this stage, the global model (gray) functions solely in inference mode, 
 serving as a knowledge source to guide communication-constrained TT\&C centers in learning their respective partial models (blue). 
 This knowledge transfer enables communication-constrained centers to acquire specialized capabilities 
@@ -38,7 +38,7 @@ When a TT\&C center uploads a new partial model, the central server replaces any
 ensuring that only the most recent knowledge is retained for subsequent federated learning rounds.
 
 \textit{Stage 5}: Execute the Federated Learning Algorithm based on Partial Forgetting Compensation 
-(FL-PFC) detailed in Section~\ref{sec:Proposed Streaming Federated Learning Framework}-\ref{section:3-2}. 
+(FL-PFC) detailed in Section~\ref{sec:proposed_framework}-\ref{section:3-2}. 
 During this stage, the stored partial models (blue) actively participate in the federated learning process 
 by assisting unconstrained TT\&C centers with model training. 
 Simultaneously, these partial models contribute to the central server's model parameter aggregation and global model updates. 
@@ -80,7 +80,7 @@ to efficiently learn fault data from the newly added TT\&C center.
 The cross entropy loss function is utilized for this objective:
 \begin{equation}
 	{\mathcal {L_C}}\left( {{\theta _{stu}}; {{\mathscr D}_{new}}} \right) =  - {{\bf{1}}_{{\mathcal Y_{new}}}} \log { \tilde{\mathcal Y}_{new}},
-	\label{eq: LC}
+	\label{eq:LC}
 \end{equation}
 \noindent where ${\theta _{stu}}$ denotes the parameters of the student model,
 ${{\bf{1}}_{{\mathcal Y_{new}}}}$ represents the one-hot encoding of the ground truth label ${\mathcal Y_{new}}$,
@@ -100,7 +100,7 @@ preventing simple replication of the teacher model's representations by the stud
 The loss function for data-domain distillation ${\mathcal L_{f}}$ is defined as follows:
 \begin{equation}
 	{\mathcal L_{f}} = \frac{1}{2}{\left\| {u\left( {{{\theta _{tea}}}; {\mathcal X_{new}}} \right) - \gamma \left( {v\left( {\theta _{stu}; {\mathcal X_{new}}} \right); {W_r}} \right)} \right\|^2},
-	\label{eq: LKD-1}
+	\label{eq:LKD-1}
 \end{equation}
 \noindent where ${\theta _{tea}}$ represents the teacher model parameters, 
 $\gamma $ denotes the regressor, ${W_r}$ refers to the parameters of the regressor, 
@@ -112,10 +112,10 @@ thereby mitigating the interference of new knowledge with existing knowledge.
 The distillation loss function in the parameter domain ${\mathcal L_{par}}$ is defined as follows:
 \begin{equation}
 	{\mathcal L_{par}} = \frac{1}{2}\sum\limits_i {{\mathcal F_i}{{\left( {\theta _{stu}^i - \theta _{tea}^i} \right)}^2}},
-	\label{eq: LKD-2}
+	\label{eq:LKD-2}
 \end{equation}
 where $\mathcal F\left( \cdot \right)$ denotes the Fisher information matrix, and $i$ indicates the index of each parameter. 
-The data-domain distillation loss in \eqref{eq: LKD-1} and the parameter-domain distillation loss in \eqref{eq: LKD-2} 
+The data-domain distillation loss in \eqref{eq:LKD-1} and the parameter-domain distillation loss in \eqref{eq:LKD-2}
 are combined as the loss function of dual-domain distillation:
 \begin{equation}
 	{\mathcal {L_{KD}}} = {\mathcal L_{f}}\left( {{\theta _{stu}};{\theta _{tea}};{W_r},{\mathcal X_{new}}} \right) + {\mathcal L_{par}}\left( {{\theta _{stu}};{\theta _{tea}}} \right).
@@ -161,12 +161,12 @@ Algorithm \ref{Alg:IL-DDKD} presents the complete execution process of the IL-DD
 		\STATE $student\_out \leftarrow \gamma \left( {v\left( {{\theta _{stu}},{\mathcal X_{new}}} \right),{W_r}} \right)$
 		\STATE ${L_{f}} \leftarrow$ MSE $\left( {teacher\_out, student\_out} \right)$
 		\STATE ${\mathcal L_{par}} \leftarrow \mathcal F\left( {{\theta _{stu}},{\theta _{tea}}} \right)$
-		\STATE ${\mathcal{L_{KD}}} = {\mathcal L_{f}} + {L_{par}}$
+		\STATE ${\mathcal{L_{KD}}} = {\mathcal L_{f}} + {\mathcal L_{par}}$
 		\STATE ${\mathcal L_{Dual}} = {\mathcal {L_C}} + {\lambda _o}{\mathcal {L_{KD}}}$
 		\STATE ${\theta _{stu}} \leftarrow {\theta _{stu}} - \eta_L \nabla {\mathcal L_{Dual}}$
 		\ENDFOR
 		\ENDFOR
-		\STATE $\mathcal A \leftarrow $IL-DDKD$\left( {{{{\mathscr D}_{new}}};{\theta _{stu}}} \right)$
+		\STATE $\mathcal A \leftarrow $\textbf{Evaluate}$\left( {{{{\mathscr D}_{new}}};{\theta _{stu}}} \right)$
 		\IF {$\mathcal A < \left( {1 - \Theta } \right){\mathcal A^ * }$}
 		\STATE ${\lambda _o} \leftarrow \mathcal G\left( {{\lambda _o}} \right)$
 		\ENDIF
@@ -195,7 +195,7 @@ Considering the privacy leakage risks associated with model parameters or gradie
 the proxy server provides white-box access exclusively to the highly trusted central server, 
 while offering black-box access to individual TT\&C centers. 
 The architecture of the federated learning algorithm based on partial forgetting compensation is illustrated in Fig. \ref{fig:partial-forgetting-compensation},
-and the complete execution process is detailed in Algorithm \ref{Alg:FL-LFC}. 
+and the complete execution process is detailed in Algorithm \ref{Alg:FL-PFC}. 
 The algorithm achieves model parameter updates through iterative interactions between the central server and the TT\&C centers. 
 Each round of federated learning encompasses the following four steps:
 
@@ -209,16 +209,16 @@ more sophisticated selection strategies can be developed based on this informati
 
 \textbf{Local Model Update}: The selected TT\&C centers utilize ${\omega _t}$ as the initial model and perform training 
 on their respective local fault data ${{\mathscr D}_{i}}$ using the \textit{inheritance distillation method} 
-described in Section~\ref{sec:Proposed Streaming Federated Learning Framework}-\ref{section:3-2}-\ref{section:3-2-1}, generating an updated local model $\omega _{t + 1}^i$.
+described in Section~\ref{sec:proposed_framework}-\ref{section:3-2}-\ref{section:3-2-1}, generating an updated local model $\omega _{t + 1}^i$.
 
 \textbf{Local Model Upload}: Participating TT\&C centers transmit their updated local model parameters to the central server.
 
 \textbf{Global Model Update}: The central server consolidates model parameters received from all participating TT\&C centers 
-and refreshes the global model employing the \textit{Dynamic Weighting Method} elaborated in Section~\ref{sec:Proposed Streaming Federated Learning Framework}-\ref{section:3-2}-\ref{section:3-2-2}.
+and refreshes the global model employing the \textit{Dynamic Weighting Method} elaborated in Section~\ref{sec:proposed_framework}-\ref{section:3-2}-\ref{section:3-2-2}.
 
 \begin{algorithm}[t]
 	\caption{FL-PFC Algorithm}
-	\label{Alg:FL-LFC}
+	\label{Alg:FL-PFC}
 	\begin{algorithmic}[1]
 		\REQUIRE The $i$-th TT\&C center fault data ${{\mathscr D}_{i}}$, the number of TT\&C centers $K$, communication rounds $T$, local epochs $E$, fraction of TT\&C centers on each round $p$, model saved in proxy server $\theta _ \times ^ * $, global learning rate $\eta $
 		\ENSURE Global model parameters ${\omega ^ * }$
@@ -226,7 +226,7 @@ and refreshes the global model employing the \textit{Dynamic Weighting Method} e
 		\STATE $m \leftarrow \max \left( {p \cdot K,1} \right)$
 		\STATE ${S_t} \leftarrow $(randomly selected subset of $m$ TT\&C centers)
 		\FOR {$i \in {S_t}$ \textbf{in parallel}}
-		\STATE $\omega _{t+1}^i \leftarrow $\textbf{Heritage Distillation Method}(${{\mathscr D}_{i}}$; $\theta _ \times ^ * $; ${\eta}$; $E$)
+		\STATE $\omega _{t+1}^i \leftarrow $\textbf{Inheritance Distillation Method}(${{\mathscr D}_{i}}$; $\theta _ \times ^ * $; ${\eta}$; $E$)
 		\ENDFOR
 		\STATE ${\omega _{t + 1}} \leftarrow $\textbf{Dynamic Weighting Method}(${{\mathscr D}_{i}}$;${S_t}$; $\omega _{t}$; $\omega _{t+1}^i$)
 		\ENDFOR
@@ -255,7 +255,7 @@ The algorithm's loss function is formulated as follows:
 \textbf{Classification Loss}: This loss function is designed to enable the local model to effectively learn the fault data ${{\mathscr D}_i}$ from its respective TT\&C center. 
 The classification loss $\mathcal L_C^i$ for TT\&C center $i$ is defined as follows:
 \begin{equation}
-	\label{eq: LCi}
+	\label{eq:LCi}
 	\mathcal L_C^i = {{\mathcal D}_{\rm{CE}}}\left( {{\mathcal P_i}\left( {\omega _{t,e}^i,{\mathcal X_i}} \right),{\mathcal Y_i}} \right),
 \end{equation}
 \noindent where $\omega _{t,e}^i$ represents the model parameters of TT\&C center $i$ at iteration $e$ of round $t$, 
@@ -271,14 +271,14 @@ guiding the local model to focus on the same regions as the partial model,
 thereby facilitating the learning of fault knowledge from the communication-constrained TT\&C center.
 The distillation loss function $\mathcal L_{\mathcal KD}^i$ for TT\&C center $i$ is defined as follows:
 \begin{equation}
-	\label{eq: LKDi}
+	\label{eq:LKDi}
 	\mathcal L_{\mathcal KD}^i = \frac{1}{2}{\left\| {{u_i}\left( {\theta _ \times ^ * ,{\mathcal  X_i}} \right) - {\gamma _i}\left( {{v_i}\left( {\omega _{t,e}^i,{\mathcal  X_i}} \right),W_r^i} \right)} \right\|^2},
 \end{equation}
 \noindent where $\theta _ \times ^ * $ represents the model saved in proxy server, 
 $\gamma_i$ is the mapper, and $W^i_r$ are the model parameters of the regressor,
 ${u_i}$ and ${v_i}$ are the feature vectors output by the partial model and the local model, respectively. 
 
-The integration of the classification loss in \eqref{eq: LCi} and the distillation loss in \eqref{eq: LKDi} constitutes the complete training objective:
+The integration of the classification loss in \eqref{eq:LCi} and the distillation loss in \eqref{eq:LKDi} constitutes the complete training objective:
 \begin{equation}
 	{\mathcal L^i} = \mathcal L_C^i\left( {\omega _{t,e}^i,{{\mathscr D}_i}} \right) + {\lambda ^i}\mathcal L_{\mathcal KD}^i\left( {\omega _{t,e}^i;\theta _ \times ^ * ;W_r^i,{\mathcal X_i}} \right),
 \end{equation}
@@ -297,11 +297,11 @@ Specifically, this paper adopts a simple heuristic strategy:
 when the objective function value exhibits an upward trend, the penalty constant $\mu$ is increased to enhance the constraint effect; 
 conversely, when the objective function value continues to decrease, 
 the penalty constant $\mu$ is appropriately reduced to accelerate convergence. 
-Algorithm \ref{Alg:Heritage Distillation Method} presents the complete execution process of the heritage distillation method.
+Algorithm \ref{Alg:Inheritance_Distillation_Method} presents the complete execution process of the inheritance distillation method.
 
 \begin{algorithm}[t]
-	\caption{Heritage Distillation Method}
-	\label{Alg:Heritage Distillation Method}
+	\caption{Inheritance Distillation Method}
+	\label{Alg:Inheritance_Distillation_Method}
 	\begin{algorithmic}[1]
 		\REQUIRE Fault data ${{\mathscr D}_{i}}$ from the $i$-th TT\&C center, the local model achieved by the $i$-th TT\&C center in the $t$-th round $\omega _{t + 1}^i$, global model for the $t$-th round ${\omega _t}$, the collection of TT\&C centers randomly chosen in the $t$-th round ${S_t}$
 		\ENSURE The local model parameters update of the $i$-th TT\&C center $\omega _{t + 1}^i$
@@ -335,7 +335,7 @@ which results in unsatisfactory global model performance.
 
 \begin{algorithm}[t]
 	\caption{Dynamic Weighting Method}
-	\label{Alg:Dynamic Weighting Method}
+	\label{Alg:Dynamic_Weighting_Method}
 	\begin{algorithmic}[1]
 		\REQUIRE The $i$-th TT\&C center fault data ${{\mathscr D}_{i}}$, the local model obtained by the $i$-th TT\&C center in the $t$-th round $\omega _{t + 1}^i$, global model of the $t$-th round ${\omega _t}$, the set of TT\&C centers randomly selected in the $t$-th round ${S_t}$
 		\ENSURE The global model parameters update of the central server ${\omega _{t + 1}}$
