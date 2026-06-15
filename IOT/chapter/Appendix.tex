@@ -1,4 +1,5 @@
-\appendix\label{app:B}
+\appendix
+\section{Proof Details}\label{app:B}
 \subsection*{Lemma~\ref{lem:1} (Client Drift Bound)}
 
 \noindent\textbf{Step 1 --- Drift recursion.}
@@ -146,9 +147,9 @@ yielding \(c_2 = 2 + 3c_0\). \(\square\)
 \subsection*{Theorem~\ref{thm:1} (Surrogate Objective Convergence)}
 
 \noindent\textbf{Step 1 (Constant setup).}
-From Proposition~\ref{prop:3}: \(\|m_t\|^2 \le B_\mu^2 = 4G^2\),
+From Proposition~\ref{prop:2}: \(\|m_t\|^2 \le B_\mu^2 = 4G^2\),
 \(\mathbb E_t\|\zeta_t\|^2 \le B_V^2 = 4G^2\).
-From Proposition~\ref{prop:4}: \(\|r_t\|^2 \le D/(t+1)^{2+2\rho}\).
+From Proposition~\ref{prop:3}: \(\|r_t\|^2 \le D/(t+1)^{2+2\rho}\).
 
 \noindent\textbf{Step 2 (Telescoping sum).}
 Take full expectation of Eq.\,\eqref{eq:33} and sum.
@@ -201,7 +202,7 @@ With \(\eta_t = \eta_0/\sqrt{t+1}\):
 \subsection*{Theorem~\ref{thm:2} (Adaptive Objective Convergence)}
 
 \noindent\textbf{Step 1.}
-Proposition~\ref{prop:7} guarantees that Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
+Proposition~\ref{prop:5} guarantees that Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
 
 \noindent\textbf{Step 2.}
 From \(\widetilde F_{t+1}(\omega_{t+1}) \le \widetilde F_t(\omega_{t+1}) + \varepsilon_t\) (Assumption~\ref{asmp:4}),
