@@ -14,7 +14,17 @@ Define two analytical objects: the adaptive round-wise objective \(\widetilde F_
 
 Let \(g_{t,e}^k\) denote the stochastic gradient, \(\bar g_t^k \triangleq \frac{1}{E}\sum_{e=0}^{E-1}g_{t,e}^k\), and \(g_t \triangleq \sum_k p_k \bar g_t^k\) the ideal full-participation gradient.
 Define the actual aggregated gradient \(d_t \triangleq \sum_k \alpha_{k,t}\bar g_t^k\), bias \(b_t \triangleq d_t - g_t\), and proxy residual \(r_t \triangleq \beta_t(\omega_t^{\mathrm{proxy}} - \omega_t)\).
-Weights \(\alpha_{k,t}, \beta_t\) follow dynamic weighting and the proxy schedule \(\gamma_t^{\mathrm{proxy}} = \bar C_\gamma (t+1)^{-(1+\rho)}\;(\rho > 0)\).
+Weights \(\alpha_{k,t}, \beta_t\) follow dynamic weighting and the proxy schedule \(\gamma_t^{\mathrm{proxy}} = \bar C_\gamma (t+1)^{-(1+\rho)}\;(\rho > 0)\) where \(\bar C_\gamma > 0\) is the initial proxy weight coefficient.
+Concretely, \(\alpha_{k,t} = \phi[\kern-0.15em[ \pi_k \gamma^k ]\kern-0.15em]\) with \(\phi\) a normalized mapping (see Section~\ref{sec:proposed_framework}-\ref{section:3-2}-\ref{section:3-2-2}), and \(\beta_t = \pi_{\mathrm{proxy}}\gamma_t^{\mathrm{proxy}}\).
+(Note: \(\gamma^k\) is itself a softmax-normalized importance factor from Algorithm~\ref{Alg:Dynamic_Weighting_Method}; \(\phi\) provides re-normalization over the expanded set \(S_t \cup \{\mathrm{proxy}\}\).)
+
+\noindent\textbf{Notation bridge to the algorithm description.}
+The analysis employs time-indexed notation that generalizes the algorithm's constants:
+\(\eta_t\) corresponds to the local step size (denoted \(\eta\) in Algorithm~\ref{Alg:FL-PFC}),
+\(\mu_t\) and \(\lambda_t^k\) generalize the constants \(\mu\) and \(\lambda^i\) appearing in Algorithm~\ref{Alg:Inheritance_Distillation_Method},
+and \(\omega_t^{\mathrm{proxy}}\) denotes the proxy model stored at the virtual client (\(\theta_\times^*\) in Section~\ref{sec:proposed_framework}-\ref{section:3-2}-\ref{section:3-2-1}).
+The per-round variation of \(\lambda_t^k,\mu_t\) (due to adaptive adjustment) is captured by the drift analysis in Assumption~\ref{asmp:4}--Proposition~\ref{prop:4}.
+
 Let \(\mathcal F_t\) denote the \(\sigma\)-field at the start of round \(t\) and \(\mathbb E_t[\cdot] \triangleq \mathbb E[\cdot \mid \mathcal F_t]\).
 
 \noindent\textbf{Server update decomposition.}
@@ -103,7 +113,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
   \(\|\nabla F_k(\omega_{t,i}^k)\|^2 \le 2\|\nabla F_k(\omega_t)\|^2 + 2L^2\|\omega_{t,i}^k - \omega_t\|^2\).
   Combining, weighting by \(p_k\), and applying the heterogeneity assumption~\ref{asmp:2} gives
   \(\sum_k p_k\,\mathbb E_t\|g_{t,i}^k\|^2 \le A_t + 4L^2 D_i\) with
-  \(A_t \triangleq 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F\|^2\).
+  \(A_t \triangleq 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F(\omega_t)\|^2\).
   Substituting back, defining \(D_{\max,e}\), and using the condition \(8L^2\eta_t^2E^2\le 1\) yields
   \(D_{\max,e} \le 2\eta_t^2 e^2 A_t\).
   The full five-step derivation appears in Appendix~\ref{app:B}.
