@@ -49,7 +49,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
   \(\exists\, M \ge 1,\;\kappa \ge 0\) such that
   \(\sum_k p_k \|\nabla F_k(\omega)\|^2 \le \kappa^2 + M\|\nabla F(\omega)\|^2\).
   Adaptive coefficients are bounded (\(\lambda_t^k \le \lambda_{\max}\), \(\mu_t \le \mu_{\max}\)), with states in a compact set.
-  Every round \(S_t \neq \varnothing\) and \(\pi_k \ge \pi_{\min} > 0\).
+  Every round \(S_t \neq \varnothing\) and \(\pi_k \ge \pi_{\min} > 0\) where \(\pi_k = p_k = n_k/n\) and \(\pi_{\mathrm{proxy}}\) denotes the data proportion of the communication-constrained (proxy) client.
 \end{assumption}
 
 \begin{assumption}[Algorithmic Bridging]\label{asmp:3}
@@ -66,7 +66,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
 \subsection{Bias and Residual}
 % -----------------------------------------------------------------
 
-\begin{proposition}[Bias Decomposition]\label{prop:3}
+\begin{proposition}[Bias Decomposition]\label{prop:2}
   \(\|b_t\| \le 2G\). Decompose \(b_t = m_t + \zeta_t\) with
   \(m_t \triangleq \mathbb E_t[b_t]\) and \(\mathbb E_t[\zeta_t] = 0\).
   By Jensen's inequality,
@@ -75,7 +75,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
   Using only this constant bound, convergence is to an \(\mathcal O(G^2)\) error neighborhood rather than exact stationarity.
 \end{proposition}
 
-\begin{proposition}[Proxy Residual]\label{prop:4}
+\begin{proposition}[Proxy Residual]\label{prop:3}
   \(\|r_t\|^2 \le D/(t+1)^{2+2\rho}\) with \(D \triangleq (\pi_{\mathrm{proxy}}\bar C_\gamma R_\beta / \pi_{\min})^{2}\);
   hence \(\sum_{t=0}^{\infty}\bigl(\frac{8}{\eta_t E} + \frac{3L}{2}\bigr)\,\mathbb E\|r_t\|^2 < \infty\).
 \end{proposition}
@@ -194,7 +194,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
   and \(\sum_{t=0}^{\infty} \varepsilon_t \le \mathcal E_\infty < \infty\).
 \end{assumption}
 
-\begin{proposition}[Sufficient Drift Condition]\label{prop:6}
+\begin{proposition}[Sufficient Drift Condition]\label{prop:4}
   Let \(z_t = (\{\lambda_t^k\}, \mu_t, \omega_t, \omega_t^{\mathrm{proxy}}, \{W_{r,t}^k\})\) collect the adaptive quantities.
   If the total variation is finite (\(\sum_{t=0}^{\infty}\|z_{t+1} - z_t\| < \infty\)),
   then the drift condition in Assumption~\ref{asmp:4} holds with
@@ -202,7 +202,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
   This is typically satisfied in practice due to decaying adaptive schedules.
 \end{proposition}
 
-\begin{proposition}[Lemma Transfer]\label{prop:7}
+\begin{proposition}[Lemma Transfer]\label{prop:5}
   Under the above conditions, Lemmas~\ref{lem:1}--\ref{lem:3} remain valid when
   \(F_k, F, \nabla F\) are replaced by \(\widetilde F_{k,t}, \widetilde F_t, \nabla\widetilde F_t\).
   Key insight: inside \(\mathbb E_t\), the adaptive parameters are frozen, making \(\widetilde F_t\) behave as a fixed objective;
@@ -226,7 +226,7 @@ where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
 \end{theorem}
 
 \begin{proof}[Proof sketch]
-  By Proposition~\ref{prop:7}, Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
+  By Proposition~\ref{prop:5}, Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
   Using \(\widetilde F_{t+1}(\omega_{t+1}) \le \widetilde F_t(\omega_{t+1}) + \varepsilon_t\) from Assumption~\ref{asmp:4},
   telescoping summation introduces \(\sum\varepsilon_t \le \mathcal E_\infty\),
   which contributes \(\frac{8\mathcal E_\infty}{E\eta_0\sqrt{T}}\) after division by \(S_T\)---decaying at \(\mathcal O(1/\sqrt{T})\).

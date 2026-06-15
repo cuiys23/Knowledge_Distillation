@@ -40,25 +40,25 @@ All experimental evaluations are conducted on a computing cluster
 comprising 8 NVIDIA GeForce RTX 3080 Ti GPUs, 
 with the framework implemented using the PyTorch deep learning library.
 
-% \added{In standard federated learning (corresponding to Stage 1), 
-% 60\% of TT\&C centers are randomly selected for each training round, 
-% with each center conducting 5 epochs of local model training on their respective datasets using a learning rate of 0.001.}
+\added{In standard federated learning (corresponding to Stage 1),
+60\% of TT\&C centers are randomly selected for each training round,
+with each center conducting 5 epochs of local model training on their respective datasets using a learning rate of 0.001.}
 
-% \added{For model training at the communication-constrained TT\&C center (corresponding to Stage 3), 
-% the training configuration comprises 100 rounds with a local batch size of 16 samples, 
-% and a reduced learning rate of 0.0001 to accommodate the constrained communication environment.}
+\added{For model training at the communication-constrained TT\&C center (corresponding to Stage 3),
+the training configuration comprises 100 rounds with a local batch size of 16 samples,
+and a reduced learning rate of 0.0001 to accommodate the constrained communication environment.}
 
-% \added{In federated learning among unconstrained TT\&C centers (corresponding to Stage 5), 
-% the training protocol spans 300 global rounds with 60\% center participation per round. 
-% Each participating center executes 5 local training epochs per federated round using a learning rate of 0.0001, 
-% which is deliberately reduced from the initial training phase to ensure stable convergence 
-% and optimal performance within practical epoch constraints.}
+\added{In federated learning among unconstrained TT\&C centers (corresponding to Stage 5),
+the training protocol spans 300 global rounds with 60\% center participation per round.
+Each participating center executes 5 local training epochs per federated round using a learning rate of 0.0001,
+which is deliberately reduced from the initial training phase to ensure stable convergence
+and optimal performance within practical epoch constraints.}
 
-% \added{All simulations in this paper are conducted under an extreme yet representative scenario: 
-% the communication-constrained TT\&C center simultaneously hosts fault categories 
-% that are entirely disjoint from those present in other TT\&C centers. 
-% This configuration mimics challenging real-world conditions where certain ground stations encounter unique fault patterns 
-% not observed elsewhere in the network.}
+\added{All simulations in this paper are conducted under an extreme yet representative scenario:
+the communication-constrained TT\&C center simultaneously hosts fault categories
+that are entirely disjoint from those present in other TT\&C centers.
+This configuration mimics challenging real-world conditions where certain ground stations encounter unique fault patterns
+not observed elsewhere in the network.}
 
 \subsection{Performance Evaluation}
 Under this configuration, the proposed framework is deployed 
@@ -203,20 +203,18 @@ achieving superior classification accuracy across all fault categories.
 \caption{Ablation study for federated learning components}
 \centering
 \label{tab:ablation-study}
-\resizebox{\columnwidth}{!}{
 \begin{tabular}{c|c|c}
 \hline
  & \textbf{Method} & \textbf{Accuracy} \\ \hline
-\multirow{3}{*}{Stage 3} 
+\multirow{3}{*}{Stage 3}
  & IL-DDKD & \textbf{0.978} \\ \cline{2-3}
  & Fine-Tuning & 0.933\\ \cline{2-3}
  & Feature Extraction & 0.894\\ \hline
-\multirow{3}{*}{Stage 5} 
+\multirow{3}{*}{Stage 5}
  & Inheritance + Dynamic weight & \textbf{0.974}\\ \cline{2-3}
  & Inheritance & 0.898\\\cline{2-3}
  & Dynamic weight & 0.958\\ \hline
 \end{tabular}
-}
 \end{table}
 
 Table \ref{tab:ablation-study} also provides the final accuracy outcomes 
@@ -234,7 +232,6 @@ thereby providing comprehensive insights into the framework's adaptability acros
 	\includegraphics[width=\columnwidth]{fig/Simulation Results/robustness-1.pdf}
 	\caption{Performance stability across different $\alpha$ values.}
 	\label{fig:algorithm_performance_vs_heterogeneity}
-
 \end{figure}
 
 Fig. \ref{fig:algorithm_performance_vs_heterogeneity} illustrates the algorithm's performance characteristics 
