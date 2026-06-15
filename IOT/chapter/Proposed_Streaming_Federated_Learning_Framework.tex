@@ -263,7 +263,7 @@ $e$ denotes the local training iterations,
 $t$ represents the federated learning rounds, 
 ${\mathcal P_i}\left( {\omega _{t,e}^i, {\mathcal X_i}} \right)$ indicates the probability values predicted by the model $\omega _{t,e}^i$ for input data ${\mathcal X_i}$, 
 ${\mathcal Y_i}$ represents the ground truth labels, 
-and ${{\mathcal D}_{\rm{CE}}}\left( { \cdot ,\cdot } \right)$ denotes the binary cross-entropy loss function.
+and ${{\mathcal D}_{\rm{CE}}}\left( { \cdot ,\cdot } \right)$ denotes the cross-entropy loss function.
 
 \textbf{Distillation loss}: This loss function is designed to enable the local model to continuously acquire fault knowledge from the partial model. 
 The knowledge transfer is accomplished by transmitting the attention maps generated from the intermediate layers of the partial model to the local model, 

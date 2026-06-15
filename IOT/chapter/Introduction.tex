@@ -29,7 +29,7 @@ addressing two unique challenges specific to this domain:
 	\centering
 	\includegraphics[width=\columnwidth]{fig/System Model/system model.pdf}
 	\caption{System model.}
-	\label{fig:system model}
+	\label{fig:system_model}
 \end{figure}
 
 % Problems addressed in this paper
@@ -40,7 +40,7 @@ addressing two unique challenges specific to this domain:
 (1) \textbf{feature-level}—identical faults manifest differently across centers due to platform and sensor diversity; 
 (2) \textbf{label-level}—centers maintain disparate fault inventories with imbalanced distributions.
 
-These challenges are illustrated in Fig.~\ref{fig:system model}, where a communication-constrained TT\&C center joins at round 100 with new fault categories. 
+These challenges are illustrated in Fig.~\ref{fig:system_model}, where a communication-constrained TT\&C center joins at round 100 with new fault categories. 
 Traditional federated learning then encounters: 
 (1) \textbf{Model instability}—the model has difficulty retaining knowledge of old classes when learning new ones; 
 (2) \textbf{Recency bias}—after the constrained center departs, the model gradually forgets its unique fault classes, as shown in Fig.~\ref{fig:problem-formulation}.
@@ -82,7 +82,7 @@ The key contributions of this work are outlined below:
 % Paper organization
 The remainder of this paper is structured as follows: 
 Section \ref{sec:Related_Work} reviews related work on continual learning and federated learning. 
-In Section \ref{sec:Proposed Streaming Federated Learning Framework}, the proposed framework is detailed, 
+In Section \ref{sec:proposed_framework}, the proposed framework is detailed,
 including the implementation procedures and the two core algorithms involved in this framework. 
 Section \ref{sec:convergence-analysis} provides theoretical convergence analysis of the proposed algorithm.
 Section \ref{sec:simulation-results} gives a series of case studies to demonstrate the effectiveness of the developed schemes. 
