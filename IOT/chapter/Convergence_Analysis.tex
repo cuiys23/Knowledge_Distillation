@@ -1,0 +1,270 @@
+\section{CONVERGENCE ANALYSIS}\label{sec:convergence-analysis}
+
+\noindent\textbf{Problem formulation.}
+Consider \(K\) clients. In communication round \(t\), a subset \(S_t\) of clients is sampled for training. Client \(k\) minimizes the local objective
+\begin{align}
+  \widetilde{\mathcal L}_t^k(\omega;\omega_t)
+  = \mathcal L_C^k(\omega)
+  + \lambda_t^k \mathcal L_{\mathrm{KD}}^k(\omega)
+  + \frac{\mu_t}{2}\|\omega-\omega_t\|^2,
+  \label{eq:1}
+\end{align}
+where \(\mathcal L_C^k\) denotes the classification loss, \(\mathcal L_{\mathrm{KD}}^k\) the knowledge distillation loss, and the last term a proximal regularizer.
+Define two analytical objects: the adaptive round-wise objective \(\widetilde F_t(\omega) \triangleq \sum_k p_k\,\mathbb E_\xi[\widetilde{\mathcal L}_t^k]\) and the time-uniform reference objective \(F(\omega) \triangleq \sum_k p_k F_k(\omega)\) with \(p_k = n_k / n\).
+
+Let \(g_{t,e}^k\) denote the stochastic gradient, \(\bar g_t^k \triangleq \frac{1}{E}\sum_{e=0}^{E-1}g_{t,e}^k\), and \(g_t \triangleq \sum_k p_k \bar g_t^k\) the ideal full-participation gradient.
+Define the actual aggregated gradient \(d_t \triangleq \sum_k \alpha_{k,t}\bar g_t^k\), bias \(b_t \triangleq d_t - g_t\), and proxy residual \(r_t \triangleq \beta_t(\omega_t^{\mathrm{proxy}} - \omega_t)\).
+Weights \(\alpha_{k,t}, \beta_t\) follow dynamic weighting and the proxy schedule \(\gamma_t^{\mathrm{proxy}} = \bar C_\gamma (t+1)^{-(1+\rho)}\;(\rho > 0)\).
+Let \(\mathcal F_t\) denote the \(\sigma\)-field at the start of round \(t\) and \(\mathbb E_t[\cdot] \triangleq \mathbb E[\cdot \mid \mathcal F_t]\).
+
+\noindent\textbf{Server update decomposition.}
+\begin{align}
+  \omega_{t+1}
+  &= \sum_{k\in S_t}\alpha_{k,t}\,\omega_{t+1}^k + \beta_t\,\omega_t^{\mathrm{proxy}}  \\
+  &= \omega_t - \eta_t E\,(g_t + b_t) + r_t.
+  \label{eq:12}
+\end{align}
+This identity separates the update into three components:\;
+\(-\eta_t E g_t\) (ideal gradient step),\;
+\(-\eta_t E b_t\) (bias from partial participation and dynamic weights), and\;
+\(r_t\) (proxy residual decaying with \(t\)).
+Define the unified constant
+\begin{align}
+  c_g \triangleq 4\max\!\bigl\{\,1+8L^2\bar\eta^2 E^2,\; M(1+8L^2\bar\eta^2 E^2)\,\bigr\},
+  \label{eq:13}
+\end{align}
+where \(\bar\eta\) bounds \(\eta_t\) and \(c_g \ge 4M\).
+
+% -----------------------------------------------------------------
+\subsection{Assumptions}
+% -----------------------------------------------------------------
+
+\begin{assumption}[Smoothness, Unbiasedness, Variance]\label{asmp:1}
+  Each \(F_k\) is \(L\)-smooth with \(F_{\inf} \triangleq \inf_\omega F(\omega) > -\infty\);
+  \(\mathbb E[g_{t,e}^k \mid \mathcal F_t, \omega_{t,e}^k] = \nabla F_k(\omega_{t,e}^k)\);
+  \(\mathbb E_t\|g_{t,e}^k - \nabla F_k\|^2 \le \sigma_l^2\).
+\end{assumption}
+
+\begin{assumption}[Heterogeneity and Boundedness]\label{asmp:6}
+  \(\exists\, M \ge 1,\;\kappa \ge 0\) such that
+  \(\sum_k p_k \|\nabla F_k(\omega)\|^2 \le \kappa^2 + M\|\nabla F(\omega)\|^2\).
+  Adaptive coefficients are bounded (\(\lambda_t^k \le \lambda_{\max}\), \(\mu_t \le \mu_{\max}\)), with states in a compact set.
+  Every round \(S_t \neq \varnothing\) and \(\pi_k \ge \pi_{\min} > 0\).
+\end{assumption}
+
+\begin{assumption}[Algorithmic Bridging]\label{asmp:8}
+  \(\|\bar g_t^k\| \le G\) almost surely;\;
+  \(\sup_t \|\omega_t^{\mathrm{proxy}} - \omega_t\| \le R_\beta\).
+\end{assumption}
+
+\begin{proposition}[Compactness and Projection]\label{prop:1}
+  If a compact set \(\mathcal K_\omega\) contains all \(\omega_t, \omega_{t,e}^k, \omega_t^{\mathrm{proxy}}\) and the stochastic gradient map is continuous, then Assumption~\ref{asmp:8} holds (with \(G\) equal to the maximum gradient norm on the compact set and \(R_\beta = \operatorname{diam}(\mathcal K_\omega)\)).
+  With projection-clipping and Euclidean projection, boundedness conditions in Assumption~\ref{asmp:6} also hold.
+\end{proposition}
+
+% -----------------------------------------------------------------
+\subsection{Bias and Residual}
+% -----------------------------------------------------------------
+
+\begin{proposition}[Bias Decomposition]\label{prop:3}
+  \(\|b_t\| \le 2G\). Decompose \(b_t = m_t + \zeta_t\) with
+  \(m_t \triangleq \mathbb E_t[b_t]\) and \(\mathbb E_t[\zeta_t] = 0\).
+  By Jensen's inequality,
+  \(\|m_t\|^2 \le 4G^2\) and \(\mathbb E_t\|\zeta_t\|^2 \le 4G^2\).
+  Denote \(B_\mu^2 \triangleq 4G^2\) and \(B_V^2 \triangleq 4G^2\) (constant bounds).
+  Using only this constant bound, convergence is to an \(\mathcal O(G^2)\) error neighborhood rather than exact stationarity.
+\end{proposition}
+
+\begin{proposition}[Proxy Residual]\label{prop:4}
+  \(\|r_t\|^2 \le D/(t+1)^{2+2\rho}\) with \(D \triangleq (\pi_{\mathrm{proxy}}\bar C_\gamma R_\beta / \pi_{\min})^{2}\);
+  hence \(\sum_{t=0}^{\infty}\bigl(\frac{8}{\eta_t E} + \frac{3L}{2}\bigr)\,\mathbb E\|r_t\|^2 < \infty\).
+\end{proposition}
+
+% -----------------------------------------------------------------
+\subsection{Core Lemmas}
+% -----------------------------------------------------------------
+
+\begin{lemma}[Client Drift Bound]\label{lem:1}
+  Define \(D_e \triangleq \sum_k p_k\,\mathbb E_t\|\omega_{t,e}^k - \omega_t\|^2\).
+  If \(8L^2\eta_t^2 E^2 \le 1\), then for all \(e \le E\),
+  \begin{align}
+    D_e \le 2\eta_t^2 e^2\bigl(2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F(\omega_t)\|^2\bigr).
+    \label{eq:26}
+  \end{align}
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+  From \(\omega_{t,e}^k - \omega_t = -\eta_t\sum_{i=0}^{e-1}g_{t,i}^k\), Cauchy--Schwarz yields
+  \(D_e \le \eta_t^2 e\sum_{i=0}^{e-1}\sum_k p_k\,\mathbb E_t\|g_{t,i}^k\|^2\).
+  Decompose the stochastic gradient as \(g_{t,i}^k = \nabla F_k(\omega_{t,i}^k) + \varepsilon_{t,i}^k\).
+  By Assumption~\ref{asmp:1} and \(\|a+b\|^2 \le 2\|a\|^2 + 2\|b\|^2\):
+  \(\mathbb E_t\|g_{t,i}^k\|^2 \le 2\sigma_l^2 + 2\|\nabla F_k(\omega_{t,i}^k)\|^2\).
+  Pull \(\nabla F_k(\omega_{t,i}^k)\) back to \(\omega_t\) via \(L\)-smoothness:
+  \(\|\nabla F_k(\omega_{t,i}^k)\|^2 \le 2\|\nabla F_k(\omega_t)\|^2 + 2L^2\|\omega_{t,i}^k - \omega_t\|^2\).
+  Combining, weighting by \(p_k\), and applying the heterogeneity assumption~\ref{asmp:6} gives
+  \(\sum_k p_k\,\mathbb E_t\|g_{t,i}^k\|^2 \le A_t + 4L^2 D_i\) with
+  \(A_t \triangleq 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F\|^2\).
+  Substituting back, defining \(D_{\max,e}\), and using the condition \(8L^2\eta_t^2E^2\le 1\) yields
+  \(D_{\max,e} \le 2\eta_t^2 e^2 A_t\).
+  The full five-step derivation appears in Appendix~\ref{app:B}.
+\end{proof}
+
+\begin{lemma}[Gradient Bias and Second Moment]\label{lem:2}
+  Define \(\delta_t \triangleq \mathbb E_t[g_t] - \nabla F(\omega_t)\). Under the same conditions:
+  \begin{align}
+    \mathbb E_t\|\delta_t\|^2 &\le 2L^2\eta_t^2 E^2 A_t, \label{eq:30}\\
+    \mathbb E_t\|g_t\|^2 &\le c_g\,(\sigma_l^2 + \kappa^2 + \|\nabla F(\omega_t)\|^2). \label{eq:31}
+  \end{align}
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+  \(\delta_t = \frac{1}{E}\sum_{e,k} p_k(\nabla F_k(\omega_{t,e}^k) - \nabla F_k(\omega_t))\).
+  By Jensen's inequality and \(L\)-smoothness:
+  \(\mathbb E_t\|\delta_t\|^2 \le \frac{L^2}{E}\sum_e D_e \le L^2 D_{\max,E} \le 2L^2\eta_t^2 E^2 A_t\).
+  For the second moment:
+  \(\mathbb E_t\|g_t\|^2 \le A_t + 4L^2 D_{\max,E} \le (1+8L^2\eta_t^2 E^2)A_t\).
+  Substituting \(A_t = 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F\|^2\) and bounding termwise via \(c_g\) (Eq.\,\eqref{eq:13}) yields Eq.\,\eqref{eq:31}.
+  See Appendix~\ref{app:B} for details.
+\end{proof}
+
+% -----------------------------------------------------------------
+\subsection{Single-Step Descent and Convergence}
+% -----------------------------------------------------------------
+
+\begin{lemma}[Single-Step Descent]\label{lem:3}
+  If the step-size condition \(x_t \triangleq \eta_t E L \le c_0 \le \frac{1}{16(1+c_g)}\) holds, then
+  \begin{align}
+    \mathbb E_t[F(\omega_{t+1})]
+    &\le F(\omega_t) - \frac{\eta_t E}{8}\|\nabla F(\omega_t)\|^2 \notag\\
+    &\quad + c_1\eta_t^2 E^2(\sigma_l^2 + \kappa^2 + B_V^2)
+       + c_2\eta_t E \cdot B_\mu^2 \notag\\
+    &\quad + \Bigl(\frac{8}{\eta_t E} + \frac{3L}{2}\Bigr)\,\mathbb E_t\|r_t\|^2,
+    \label{eq:33}
+  \end{align}
+  with \(c_1 \triangleq 8L c_0 + \frac{3L}{2}c_g + 3L\) and \(c_2 \triangleq 2 + 3c_0\).
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+  From \(L\)-smoothness, expand \(F(\omega_{t+1})\) around \(\omega_t\) with \(\Delta_t = -\eta_t E(g_t + b_t) + r_t\).
+  The proof proceeds in three steps:
+  \textbf{Step 1:} Expand \(\mathbb E_t\langle\nabla F, \Delta_t\rangle\) into three inner-product terms (A)--(C) using \(\mathbb E_t[g_t] = \nabla F + \delta_t\); apply Young's inequality to each and sum.
+  \textbf{Step 2:} Bound the quadratic term \(\|\Delta_t\|^2\) by separating \(g_t\), \(b_t\), \(r_t\) and substituting the second-moment bounds from Lemma~\ref{lem:2}.
+  \textbf{Step 3:} Merge the inner product and quadratic bounds, substitute the bound on \(\|\delta_t\|^2\) from Eq.\,\eqref{eq:30}, absorb positive \(\|\nabla F\|^2\) terms via the step-size condition, and combine the remaining terms to obtain \(c_1\) and \(c_2\).
+  The full five-step algebraic derivation appears in Appendix~\ref{app:B}.
+\end{proof}
+
+\begin{theorem}[Surrogate Objective Convergence]\label{thm:1}
+  Let \(\eta_t = \eta_0 / \sqrt{t+1}\) and assume the step-size condition holds.
+  Under Assumptions~\ref{asmp:1}, \ref{asmp:6}, and \ref{asmp:8}:
+  \begin{align}
+    \min_{0 \le t < T} \mathbb E\|\nabla F(\omega_t)\|^2
+    &\le \frac{8\Delta_F}{E\eta_0\sqrt{T}}
+       + \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}}
+       + 32 c_2 G^2 E \notag\\
+    &\quad + \frac{8c_1 E\eta_0(1 + \ln T)}{\sqrt{T}}\,
+          (\sigma_l^2 + \kappa^2 + 4G^2),
+    \label{eq:36}
+  \end{align}
+  where \(\Delta_F \triangleq F(\omega_0) - F_{\inf}\) and
+  \(\mathcal R_\infty \triangleq \sum_{t=0}^{\infty}(\frac{8}{\eta_t E} + \frac{3L}{2})\,\mathbb E\|r_t\|^2 < \infty\).
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+  Take full expectation of Eq.\,\eqref{eq:33} and telescope-sum over \(t = 0\) to \(T-1\) (\(S_T \triangleq \sum_{t=0}^{T-1}\eta_t\)).
+  Using \(F(\omega_T) \ge F_{\inf}\), rearranging, and extracting the minimum yields
+  \(\min_{0\le t<T} \le \frac{8}{E S_T}[\Delta_F + c_1 E^2(\cdots)\sum\eta_t^2 + 4c_2 G^2 E \cdot S_T + \mathcal R_\infty]\).
+  With \(\eta_t = \eta_0/\sqrt{t+1}\), we have \(S_T \ge \eta_0\sqrt{T}\) and \(\sum\eta_t^2 \le \eta_0^2(1 + \ln T)\).
+  The critical observation is that the systematic bias term becomes \(\frac{8}{E S_T}\cdot 4c_2 G^2 E \cdot S_T = 32 c_2 G^2 E\)---the \(S_T\) factors cancel, producing a non-decaying \textbf{error floor}.
+  Full details, including convergence of \(\mathcal R_\infty\), are in Appendix~\ref{app:B}.
+\end{proof}
+
+\begin{corollary}[Convergence to Error Neighborhood]\label{cor:1}
+  \(\displaystyle \limsup_{T\to\infty}\;\min_{0\le t<T} \mathbb E\|\nabla F(\omega_t)\|^2 = 32 c_2 G^2 E\).
+\end{corollary}
+
+% -----------------------------------------------------------------
+\subsection{Extension to the Adaptive Objective}
+% -----------------------------------------------------------------
+
+\begin{assumption}[Regularity and Drift]\label{asmp:11}
+  \(\widetilde F_{k,t}\) is \(L\)-smooth with the same heterogeneity bound as Assumption~\ref{asmp:6};
+  \(g_{t,e}^k\) is unbiased for \(\widetilde F_{k,t}\) (variance \(\le \sigma_l^2\)).
+  There exist \(\varepsilon_t\) such that
+  \(\sup_\omega |\widetilde F_{t+1}(\omega) - \widetilde F_t(\omega)| \le \varepsilon_t\)
+  and \(\sum_{t=0}^{\infty} \varepsilon_t \le \mathcal E_\infty < \infty\).
+\end{assumption}
+
+\begin{proposition}[Sufficient Drift Condition]\label{prop:6}
+  Let \(z_t = (\{\lambda_t^k\}, \mu_t, \omega_t, \omega_t^{\mathrm{proxy}}, \{W_{r,t}^k\})\) collect the adaptive quantities.
+  If the total variation is finite (\(\sum_{t=0}^{\infty}\|z_{t+1} - z_t\| < \infty\)),
+  then the drift condition in Assumption~\ref{asmp:11} holds with
+  \(\varepsilon_t = L_z\|z_{t+1} - z_t\|\), yielding \(\mathcal E_\infty < \infty\).
+  This is typically satisfied in practice due to decaying adaptive schedules.
+\end{proposition}
+
+\begin{proposition}[Lemma Transfer]\label{prop:7}
+  Under the above conditions, Lemmas~\ref{lem:1}--\ref{lem:3} remain valid when
+  \(F_k, F, \nabla F\) are replaced by \(\widetilde F_{k,t}, \widetilde F_t, \nabla\widetilde F_t\).
+  Key insight: inside \(\mathbb E_t\), the adaptive parameters are frozen, making \(\widetilde F_t\) behave as a fixed objective;
+  the proofs depend only on the unified constants \(L, \sigma_l, \kappa, M\).
+\end{proposition}
+
+\begin{theorem}[Adaptive Objective Convergence]\label{thm:2}
+  With the same \(\eta_t\) and step-size condition, under
+  Assumptions~\ref{asmp:6}, \ref{asmp:8}, and \ref{asmp:11}:
+  \begin{align}
+    \min_{0 \le t < T} \mathbb E\|\nabla\widetilde F_t(\omega_t)\|^2
+    &\le \frac{8\widetilde\Delta_0}{E\eta_0\sqrt{T}}
+       + \frac{8\mathcal E_\infty}{E\eta_0\sqrt{T}}
+       + \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}} \notag\\
+    &\quad + 32 c_2 G^2 E \notag\\
+    &\quad + \frac{8c_1 E\eta_0(1 + \ln T)}{\sqrt{T}}\,
+          (\sigma_l^2 + \kappa^2 + 4G^2),
+    \label{eq:42}
+  \end{align}
+  where \(\widetilde\Delta_0 \triangleq \widetilde F_0(\omega_0) - \widetilde F_{\inf}\).
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+  By Proposition~\ref{prop:7}, Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
+  Using \(\widetilde F_{t+1}(\omega_{t+1}) \le \widetilde F_t(\omega_{t+1}) + \varepsilon_t\) from Assumption~\ref{asmp:11},
+  telescoping summation introduces \(\sum\varepsilon_t \le \mathcal E_\infty\),
+  which contributes \(\frac{8\mathcal E_\infty}{E\eta_0\sqrt{T}}\) after division by \(S_T\)---decaying at \(\mathcal O(1/\sqrt{T})\).
+  The error floor \(32 c_2 G^2 E\) remains unchanged.
+  Full details in Appendix~\ref{app:B}.
+\end{proof}
+
+\begin{corollary}[Adaptive Error Neighborhood]\label{cor:2}
+  \(\displaystyle \limsup_{T\to\infty}\;\min_{0\le t<T} \mathbb E\|\nabla\widetilde F_t(\omega_t)\|^2 = 32 c_2 G^2 E\).
+\end{corollary}
+
+% -----------------------------------------------------------------
+\subsection{Conclusion and Rate Decomposition}
+% -----------------------------------------------------------------
+
+\noindent\textbf{Physical origin of the error floor.}
+The error floor \(32 c_2 G^2 E\) arises from the non-decaying constant bound
+\(B_\mu^2 = 4G^2\) on the systematic bias \(m_t\) in \(b_t = m_t + \zeta_t\).
+During telescoping summation, the \(\eta_t E\) contributions from \(m_t\) accumulate proportionally to \(S_T\);
+dividing by \(S_T\) cancels the dependence, leaving a nonzero constant.
+\(G\) (Assumption~\ref{asmp:8}) is the maximum client gradient norm, analogous to a fixed noise floor in communication systems, determining the ultimate accuracy ceiling.
+
+\noindent\textbf{Rate decomposition.}
+The upper bound in Theorem~\ref{thm:2} consists of five components listed in Table~\ref{tab:rate}.
+As \(T \to \infty\), all decaying terms vanish, and the squared gradient norm approaches the neighborhood of \(32 c_2 G^2 E\).
+
+\begin{table}[h]
+  \centering
+  \caption{Convergence Rate Decomposition}\label{tab:rate}
+  \begin{tabular}{p{0.45\columnwidth}p{0.35\columnwidth}}
+    \toprule
+    \textbf{Term} & \textbf{Rate} \\
+    \midrule
+    \(\frac{8\widetilde\Delta_0}{E\eta_0\sqrt{T}}\) (initial potential) & \(\mathcal O(1/\sqrt{T})\) \\
+    \(\frac{8\mathcal E_\infty}{E\eta_0\sqrt{T}}\) (objective drift)    & \(\mathcal O(1/\sqrt{T})\) \\
+    \(\frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}}\) (proxy residual)     & \(\mathcal O(1/\sqrt{T})\) \\
+    \(\mathbf{32 c_2 G^2 E}\) (\textbf{error floor})                    & \textbf{non-decaying} \\
+    \(\frac{8c_1 E\eta_0(1+\ln T)}{\sqrt{T}}(\cdots)\)                  & \(\mathcal O(\ln T/\sqrt{T})\) \\
+    \bottomrule
+  \end{tabular}
+\end{table}

@@ -1,0 +1,265 @@
+\appendix
+\subsection*{Lemma~\ref{lem:1} (Client Drift Bound)}
+
+\noindent\textbf{Step 1 --- Drift recursion.}
+\(\omega_{t,e}^k - \omega_t = -\eta_t\sum_{i=0}^{e-1}g_{t,i}^k\).
+Cauchy--Schwarz:
+\(\|\omega_{t,e}^k - \omega_t\|^2 \le \eta_t^2 e\sum_{i=0}^{e-1}\|g_{t,i}^k\|^2\).
+Taking \(\mathbb E_t\) and weighted summation:
+\(D_e \le \eta_t^2 e\sum_{i=0}^{e-1}\sum_k p_k\,\mathbb E_t\|g_{t,i}^k\|^2\).
+
+\noindent\textbf{Step 2a --- Noise decomposition.}
+\(g_{t,i}^k = \nabla F_k(\omega_{t,i}^k) + \varepsilon_{t,i}^k\)
+(\(\mathbb E_t[\varepsilon] = 0\), \(\mathbb E_t\|\varepsilon\|^2 \le \sigma_l^2\)).
+By \(\|a+b\|^2 \le 2\|a\|^2 + 2\|b\|^2\):
+\(\mathbb E_t\|g_{t,i}^k\|^2 \le 2\sigma_l^2 + 2\|\nabla F_k(\omega_{t,i}^k)\|^2\).
+
+\noindent\textbf{Step 2b --- Pullback.}
+\(\nabla F_k(\omega_{t,i}^k) = \nabla F_k(\omega_t) + (\nabla F_k(\omega_{t,i}^k) - \nabla F_k(\omega_t))\).
+\(L\)-smoothness:
+\(\|\nabla F_k(\omega_{t,i}^k)\|^2 \le 2\|\nabla F_k(\omega_t)\|^2 + 2L^2\|\omega_{t,i}^k - \omega_t\|^2\).
+
+\noindent\textbf{Step 2c --- Combine.}
+\(\mathbb E_t\|g_{t,i}^k\|^2 \le 2\sigma_l^2 + 4\|\nabla F_k(\omega_t)\|^2 + 4L^2\,\mathbb E_t\|\omega_{t,i}^k - \omega_t\|^2\).
+
+\noindent\textbf{Step 2d --- Weighted summation.}
+\(\sum_k p_k\,\mathbb E_t\|g_{t,i}^k\|^2
+ \le 2\sigma_l^2 + 4\sum_k p_k\|\nabla F_k(\omega_t)\|^2 + 4L^2 D_i\).
+Using the heterogeneity assumption~\ref{asmp:6}:
+\(\le A_t + 4L^2 D_i,\; A_t \triangleq 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F\|^2\).
+
+\noindent\textbf{Steps 3--5 --- Solve via prefix maximum.}
+Substituting yields \(D_e \le \eta_t^2 e^2 A_t + 4L^2\eta_t^2 e\sum_{i=0}^{e-1}D_i\).
+Defining \(D_{\max,e} \triangleq \max_{0\le j\le e} D_j\):
+\(D_{\max,e} \le \eta_t^2 e^2 A_t + 4L^2\eta_t^2 e^2 D_{\max,e}\).
+Under \(8L^2\eta_t^2 E^2 \le 1\), we have \(4L^2\eta_t^2 e^2 \le 1/2\),
+so \(D_{\max,e} \le 2\eta_t^2 e^2 A_t\). \(\square\)
+
+\subsection*{Lemma~\ref{lem:2} (Gradient Bias and Second Moment)}
+
+\noindent\textbf{Bias term \(\delta_t\):}
+\(\delta_t = \frac{1}{E}\sum_{e,k} p_k(\nabla F_k(\omega_{t,e}^k) - \nabla F_k(\omega_t))\).
+By Jensen's inequality and \(L\)-smoothness:
+\(\mathbb E_t\|\delta_t\|^2 \le \frac{L^2}{E}\sum_{e=0}^{E-1} D_e
+ \le L^2 D_{\max,E} \le 2L^2\eta_t^2 E^2 A_t\).\;
+This establishes Eq.\,\eqref{eq:30}.
+
+\noindent\textbf{Second moment \(\mathbb E_t\|g_t\|^2\):}
+\(\mathbb E_t\|g_t\|^2 \le A_t + 4L^2 D_{\max,E} \le (1+8L^2\eta_t^2 E^2)A_t\).
+Substituting \(A_t = 2\sigma_l^2 + 4\kappa^2 + 4M\|\nabla F\|^2\):
+\begin{align*}
+  (1+8L^2\eta_t^2 E^2)A_t
+  &= 2(1+8L^2\eta_t^2 E^2)\sigma_l^2
+     + 4(1+8L^2\eta_t^2 E^2)\kappa^2 \notag\\
+  &\quad + 4M(1+8L^2\eta_t^2 E^2)\,\|\nabla F\|^2.
+\end{align*}
+Using \(\eta_t \le \bar\eta\) and the definition of \(c_g\) (Eq.\,\eqref{eq:13}):
+\(\frac{1}{2}c_g \ge 2(1+8L^2\bar\eta^2 E^2)\),
+\(c_g \ge 4(1+8L^2\bar\eta^2 E^2)\), and
+\(c_g \ge 4M(1+8L^2\bar\eta^2 E^2)\).
+The three terms are bounded by \(\frac{c_g}{2}\sigma_l^2\), \(c_g\kappa^2\), and \(c_g\|\nabla F\|^2\),
+summing to \(\le c_g(\sigma_l^2 + \kappa^2 + \|\nabla F\|^2)\). \(\square\)
+
+\subsection*{Lemma~\ref{lem:3} (Single-Step Descent)}
+
+\noindent\textbf{Step 1 --- Inner product.}
+\(\mathbb E_t\langle\nabla F, \Delta_t\rangle
+ = -\eta_t E\langle\nabla F, \mathbb E_t[g_t]\rangle
+   - \eta_t E\langle\nabla F, m_t\rangle
+   + \mathbb E_t\langle\nabla F, r_t\rangle\).
+Using \(\mathbb E_t[g_t] = \nabla F + \delta_t\):
+\begin{align*}
+  \text{(A)}\;& -\eta_t E\langle\nabla F, \nabla F + \delta_t\rangle \notag\\
+              &\qquad = -\eta_t E\|\nabla F\|^2 - \eta_t E\langle\nabla F, \delta_t\rangle\\
+  \text{(B)}\;& -\eta_t E\langle\nabla F, m_t\rangle,\qquad
+  \text{(C)}\; \mathbb E_t\langle\nabla F, r_t\rangle.
+\end{align*}
+Applying Young's inequality (with \(\alpha = 1/2\) for (A), \(\alpha = 1/2\) for (B), \(\alpha = \eta_t E/4\) for (C)):
+\begin{align*}
+  \text{(A)} &\le -\eta_t E\|\nabla F\|^2 + \tfrac{\eta_t E}{4}\|\nabla F\|^2 \notag\\
+             &\qquad + \eta_t E\|\delta_t\|^2
+              = -\tfrac{3\eta_t E}{4}\|\nabla F\|^2 + \eta_t E\|\delta_t\|^2,\\
+  \text{(B)} &\le \tfrac{\eta_t E}{4}\|\nabla F\|^2 + \eta_t E\|m_t\|^2,\\
+  \text{(C)} &\le \tfrac{\eta_t E}{8}\|\nabla F\|^2 \notag\\
+            &\qquad + \tfrac{2}{\eta_t E}\,\mathbb E_t\|r_t\|^2.
+\end{align*}
+Summing:
+\begin{align*}
+  \mathbb E_t\langle\nabla F, \Delta_t\rangle
+  &\le -\tfrac{3}{8}\eta_t E\|\nabla F\|^2 \notag\\
+  &\quad + \eta_t E\|\delta_t\|^2 \notag\\
+  &\quad + \eta_t E\!\cdot\! B_\mu^2
+     + \tfrac{2}{\eta_t E}\,\mathbb E_t\|r_t\|^2.
+\end{align*}
+
+\noindent\textbf{Step 2 --- Quadratic term.}
+\(\|\Delta_t\|^2 \le 3\eta_t^2 E^2\|g_t\|^2 + 3\eta_t^2 E^2\|b_t\|^2 + 3\|r_t\|^2\).
+Multiplying by \(L/2\), taking \(\mathbb E_t\), and substituting bounds:
+\begin{align*}
+  \frac{L}{2}\mathbb E_t\|\Delta_t\|^2
+  &\le \frac{3L}{2}\eta_t^2 E^2 c_g(\sigma_l^2 + \kappa^2 + \|\nabla F\|^2) \\
+  &\quad + \frac{3L}{2}\eta_t^2 E^2(B_\mu^2 + B_V^2)
+     + \frac{3L}{2}\,\mathbb E_t\|r_t\|^2.
+\end{align*}
+
+\noindent\textbf{Step 3 --- Merging.}
+Substituting \(\eta_t E\|\delta_t\|^2 \le 8L^2\eta_t^3 E^3(\sigma_l^2 + \kappa^2 + M\|\nabla F\|^2)\) (from Eq.\,\eqref{eq:30}):
+\begin{align*}
+  \mathbb E_t[F(\omega_{t+1})]
+  &\le F(\omega_t)
+     - \tfrac{3}{8}\eta_t E\|\nabla F\|^2
+     + \tfrac{3L}{2}\eta_t^2 E^2 c_g\|\nabla F\|^2 \notag\\
+  &\quad + 8L^2\eta_t^3 E^3 M\|\nabla F\|^2 \notag\\
+  &\quad + \bigl(\tfrac{3L}{2}c_g\eta_t^2 E^2 + 8L^2\eta_t^3 E^3\bigr)(\sigma_l^2 + \kappa^2) \\
+  &\quad + \tfrac{3L}{2}\eta_t^2 E^2 B_V^2
+     + \eta_t E B_\mu^2
+     + \tfrac{3L}{2}\eta_t^2 E^2 B_\mu^2 \notag\\
+  &\quad + \bigl(\tfrac{2}{\eta_t E} + \tfrac{3L}{2}\bigr)\,\mathbb E_t\|r_t\|^2.
+\end{align*}
+
+\noindent\textbf{Step 4 --- Coefficient absorption.}
+The coefficient of \(\|\nabla F\|^2\) is
+\(-\frac{3}{8}\eta_t E + \frac{3L}{2}\eta_t^2 E^2 c_g + 8L^2\eta_t^3 E^3 M
+ = -\frac{3}{8}\eta_t E + \eta_t E \cdot \eta_t E L \cdot (\frac{3}{2}c_g + 8L\eta_t E M)\).
+Under \(\eta_t E L \le c_0 \le \frac{1}{16(1+c_g)}\) and \(c_g \ge 4M\),
+one can verify \(\frac{3}{2}c_g + 8L\eta_t E M \le \frac{7}{2}c_g\),
+so the coefficient satisfies
+\(\le -\frac{3}{8}\eta_t E + \eta_t E \cdot c_0 \cdot \frac{7}{2}c_g
+   \le -\frac{\eta_t E}{8}\)
+(since \(\frac{7}{2}c_0 c_g < \frac{1}{4}\)).
+
+\noindent\textbf{Step 5 --- Constants \(c_1, c_2\).}
+Using \(8L^2\eta_t^3 E^3 \le 8L c_0 \eta_t^2 E^2\) to reduce order:
+\((\frac{3L}{2}c_g + 8L c_0)\eta_t^2 E^2(\sigma_l^2 + \kappa^2)
+   + \frac{3L}{2}\eta_t^2 E^2 B_V^2
+ \le c_1\eta_t^2 E^2(\sigma_l^2 + \kappa^2 + B_V^2)\),
+with \(c_1 = \frac{3L}{2}c_g + 8L c_0 + 3L\).
+The \(B_\mu^2\) term:
+\(\eta_t E + \frac{3L}{2}\eta_t^2 E^2
+ = \eta_t E + \frac{3}{2}(\eta_t E L)\eta_t E
+ \le (1 + \frac{3}{2}c_0)\eta_t E\),
+yielding \(c_2 = 2 + 3c_0\). \(\square\)
+
+% =================================================================
+\subsection{Complete Proofs of Theorems}
+% =================================================================
+
+\subsection*{Theorem~\ref{thm:1} (Surrogate Objective Convergence)}
+
+\noindent\textbf{Step 1 (Constant setup).}
+From Proposition~\ref{prop:3}: \(\|m_t\|^2 \le B_\mu^2 = 4G^2\),
+\(\mathbb E_t\|\zeta_t\|^2 \le B_V^2 = 4G^2\).
+From Proposition~\ref{prop:4}: \(\|r_t\|^2 \le D/(t+1)^{2+2\rho}\).
+
+\noindent\textbf{Step 2 (Telescoping sum).}
+Take full expectation of Eq.\,\eqref{eq:33} and sum.
+Let \(S_T \triangleq \sum_{t=0}^{T-1}\eta_t\).
+The five terms accumulate as:
+\begin{itemize}[leftmargin=*,nosep]
+  \item \(\mathbb E_t[F(\omega_{t+1})] \le \mathbb E_t[F(\omega_t)]
+        \;\Longrightarrow\; \mathbb E[F(\omega_T)] \le \mathbb E[F(\omega_0)]\)
+        (telescoping cancellation)
+  \item \(-\dfrac{\eta_t E}{8}\|\nabla F(\omega_t)\|^2
+        \;\Longrightarrow\; -\dfrac{E}{8}\sum_{t=0}^{T-1}\eta_t\,\mathbb E\|\nabla F(\omega_t)\|^2\)
+  \item \(c_1\eta_t^2 E^2(\sigma_l^2 + \kappa^2 + B_V^2)
+        \;\Longrightarrow\; c_1 E^2(\sigma_l^2 + \kappa^2 + 4G^2)\sum_{t=0}^{T-1}\eta_t^2\)
+  \item \(c_2\eta_t E \cdot 4G^2
+        \;\Longrightarrow\; 4c_2 G^2 E \cdot S_T\)
+  \item \(\bigl(\dfrac{8}{\eta_t E} + \dfrac{3L}{2}\bigr)\mathbb E_t\|r_t\|^2
+        \;\Longrightarrow\; \sum_{t=0}^{T-1}\bigl(\dfrac{8}{\eta_t E} + \dfrac{3L}{2}\bigr)\mathbb E\|r_t\|^2\)
+\end{itemize}
+
+\noindent\textbf{Step 3 (Rearranging).}
+From \(F(\omega_T) \ge F_{\inf}\):
+\(\frac{E}{8}\sum\eta_t\,\mathbb E\|\nabla F\|^2
+ \le \Delta_F + c_1 E^2(\sigma_l^2 + \kappa^2 + 4G^2)\sum\eta_t^2
+    + 4c_2 G^2 E \cdot S_T + \mathcal R_\infty\).
+
+\noindent\textbf{Steps 4--5 (Extract minimum \& series estimates).}
+\(\min_{0\le t<T} \le \frac{8}{E S_T}[\Delta_F + c_1 E^2(\cdots)\sum\eta_t^2 + 4c_2 G^2 E \cdot S_T + \mathcal R_\infty]\).
+With \(\eta_t = \eta_0/\sqrt{t+1}\):
+\(S_T \ge \eta_0\sqrt{T}\;(T\ge 4)\), \(\sum\eta_t^2 \le \eta_0^2(1 + \ln T)\).
+
+\noindent\textbf{Step 6 (Four-term substitution).}
+\begin{itemize}\setlength\itemsep{0pt}
+  \item[] \(\displaystyle\frac{8}{E S_T}\Delta_F \le \frac{8\Delta_F}{E\eta_0\sqrt{T}}\)
+  \item[] \(\displaystyle\frac{8}{E S_T}\,c_1 E^2(\cdots)\sum\eta_t^2
+           \le \frac{8c_1 E\eta_0(1+\ln T)}{\sqrt{T}}(\sigma_l^2 + \kappa^2 + 4G^2)\)
+  \item[] \(\displaystyle\frac{8}{E S_T}\cdot 4c_2 G^2 E \cdot S_T = 32 c_2 G^2 E\)
+           (\textbf{error floor}, \(S_T\) cancels)
+  \item[] \(\displaystyle\frac{8}{E S_T}\mathcal R_\infty \le \frac{8\mathcal R_\infty}{E\eta_0\sqrt{T}}\)
+\end{itemize}
+
+\noindent\textbf{Step 7 (Residual convergence verification).}
+\(\mathcal R_\infty
+ \le D\Bigl[\frac{8}{E\eta_0}\sum(t+1)^{-3/2-2\rho}
+           + \frac{3L}{2}\sum(t+1)^{-2-2\rho}\Bigr] < \infty\)
+(since \(\rho > 0\)). \(\square\)
+
+\subsection*{Theorem~\ref{thm:2} (Adaptive Objective Convergence)}
+
+\noindent\textbf{Step 1.}
+Proposition~\ref{prop:7} guarantees that Eq.\,\eqref{eq:33} holds for \(\widetilde F_t\).
+
+\noindent\textbf{Step 2.}
+From \(\widetilde F_{t+1}(\omega_{t+1}) \le \widetilde F_t(\omega_{t+1}) + \varepsilon_t\) (Assumption~\ref{asmp:11}),
+taking full expectation:
+\begin{align*}
+  \mathbb E[\widetilde F_{t+1}]
+  &\le \mathbb E[\widetilde F_t]
+     - \tfrac{\eta_t E}{8}\,\mathbb E\|\nabla\widetilde F_t\|^2
+     + c_1\eta_t^2 E^2(\cdots) \\
+  &\quad + 4c_2 G^2\eta_t E
+     + \bigl(\tfrac{8}{\eta_t E} + \tfrac{3L}{2}\bigr)\mathbb E\|r_t\|^2
+     + \varepsilon_t.
+\end{align*}
+
+\noindent\textbf{Step 3 (Telescoping sum).}
+Summing from \(t = 0\) to \(T-1\):
+\(\frac{E}{8}\sum\eta_t\,\mathbb E\|\nabla\widetilde F_t\|^2
+ \le \widetilde\Delta_0 + \sum\varepsilon_t
+    + c_1 E^2(\cdots)\sum\eta_t^2
+    + 4c_2 G^2 E \cdot S_T + \mathcal R_\infty\).
+Dividing by \(S_T\) and taking the minimum:
+\(\frac{8\sum\varepsilon_t}{E S_T} \le \frac{8\mathcal E_\infty}{E\eta_0\sqrt{T}}\);
+the error floor \(32 c_2 G^2 E\) remains unchanged. \(\square\)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibfile}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/picture/Cuiyongsheng.jpg}}]{Yongsheng Cui}
+	(Graduate Student Member, IEEE)
+	is currently pursuing the Ph.D. degree in the Department of Electronic Engineering, Tsinghua University, Beijing, China.
+	His research interests include deep space communications, satellite constellation design,
+	machine learning and satellite TT\&C systems.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/picture/Chentaiyi.jpg}}]{Taiyi Chen}
+	(Student Member, IEEE)
+	received the Master degree in telecommunication engineering from the Department of Electronic Engineering,
+	Tsinghua University, Beijing, P.R. China.
+	His research interests include Wireless Communication Systems for satellite constellations,
+	channel coding, and deep space communications.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/picture/Haoran Xie-eps-converted-to.pdf}}]{Haoran Xie}
+	(Member, IEEE)
+	is a researcher at the Electric Power Research Institute, China Southern Power Grid.
+	His research interests include application of optimization, machine learning,
+	and statistical theory.
+	He has served as the Chair for IEEE IWCMC 2022/2023/2024 Symposium and IEEE VTC 2022-Fall Symposium.
+\end{IEEEbiography}
+
+\begin{IEEEbiography}[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{fig/picture/YafengZhan-eps-converted-to.pdf}}]{Yafeng Zhan}
+	(Member, IEEE)
+	received B.S.E.E. and Ph.D.E.E. degrees from the Department of Electronic Engineering, Tsinghua University, Beijing, China,
+	in 1999 and 2004, respectively.
+	He is currently a Professor with the Beijing National Research Center for Information Science and Technology,
+	Tsinghua University. His current research interests include satellite TT\&C systems,
+	communication signal processing and deep space communications.
+	He serves as an editor of \textit{Chinese Space Science and Technology} and the \textit{Journal of Deep Space Exploration}.
+\end{IEEEbiography}

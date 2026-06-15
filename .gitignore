@@ -37,3 +37,4 @@ dataset/
 IOT/**
 !IOT/**/
 !IOT/**/*.tex
+!IOT/**/*.md
